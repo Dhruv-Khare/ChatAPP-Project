@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { InputBox } from "../componenets/styled/StyledComponent.jsx";
 import FileMenu from "../componenets/Dialog/FileMenu.jsx";
-import { sampleMessage } from "../constants/sampleData.js";
+import { sampleMessage } from "../contants/sampleData.js";
 import MessageComponent from "../componenets/shared/MessageComponent.jsx";
 
 const user = {

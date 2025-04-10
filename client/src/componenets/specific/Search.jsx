@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { useInputValidation } from "6pp";
 import { Search as SearchIcon } from "@mui/icons-material";
 import USerItem from "../shared/USerItem";
-import { sampleUsers } from "../../contants/SampleData";
+import { sampleUsers } from "../../contants/sampleData";
 
 const Search = () => {
   const search = useInputValidation("");
