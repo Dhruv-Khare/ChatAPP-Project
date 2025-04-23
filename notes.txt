@@ -1,0 +1,39 @@
+Data Required:
+ User:
+    name,UserName,Bio,Password(hashed) ,Avatar
+ Char:
+    Name, GroupChat, Creator, Members(UserID)
+ Messages:
+    content, Attachement, Chat(ChatId), Sender(UserId)
+ Request:
+    status, Sender, Reciever
+
+
+
+
+
+api:
+ User:
+  1-login
+  2-signup
+  3-searchUser
+  4-SendREquest
+  5- accept notification(use of webSocket)
+  6-GEtMyFriends Api
+ Chat:
+  1- SendAttachment
+  2-GEtMy Friends
+  3- renameGRoup
+  4- deleteGRoup
+  5- add/remove members
+ Admin:
+   1- AminLogin/logout
+   2- Dashboard Statistics 
+   3- chatData /userData
+
+used-Pakages:
+  $ npm i express mongoose cors dotenv jsonwebtoken multer socket.io uuid bcrypt cookie-parser cloudinary
+
+Pagination: in pagination we add multiple pages with same number of lmessages let say n number of pages at everuy page and there is navigation to go on diff pages by clicking on page number 
+
+InfiniteScroll: in infinite scroll the page is automatically added when we reach the bottom of the page . 
