@@ -1,4 +1,12 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+
+const cookieOptions = {
+  maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+  httpOnly: true,
+  sameSite: "none",
+  secure: true,
+};
 
 const connectDB = (uri) => {
   mongoose
@@ -10,4 +18,15 @@ const connectDB = (uri) => {
       throw err;
     });
 };
-export { connectDB };
+const sendToken = (res, user, statusCode, message) => {
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+
+  return res.status(statusCode).cookie("Patrachar", token, cookieOptions).json({
+    success: true,
+    message,
+  });
+};
+const emmitEvent = (req, event, users, data) => {
+  console.log(`emmiting event ${event} to ${users}`);
+};
+export { connectDB, sendToken, cookieOptions, emmitEvent };
