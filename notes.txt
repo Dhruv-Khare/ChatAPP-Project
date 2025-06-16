@@ -37,3 +37,8 @@ InfiniteScroll: in infinite scroll the page is automatically added when we reach
 ## we use jsonwebtoken for authenticatin process > but there are several other methods like oAuth, session storage.
 
 ## eror middlewares is used after all the routes in app.js . syntax- app.use(errorMIddleware);
+
+
+
+
+2:57
