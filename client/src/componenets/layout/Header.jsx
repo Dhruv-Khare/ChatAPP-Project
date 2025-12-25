@@ -68,8 +68,7 @@ const Header = () => {
                 },
               }}
             >
-              Chatt App
-            </Typography>
+  Patrachar            </Typography>
             <Box
               sx={{
                 display: {

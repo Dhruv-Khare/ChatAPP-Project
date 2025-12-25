@@ -35,7 +35,7 @@ const App = () => {
             path="/login"
             element={
               <ProtectedRoute user={!user} redirect="/">
-                <Login />
+                <Login  />
               </ProtectedRoute>
             }
           />

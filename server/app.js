@@ -7,13 +7,15 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.js";
 import chatRoutes from "./routes/chat.js";
 import { createUser } from "./seeders/user.js";
+import { createSingleChat } from "./seeders/chat.js";
 
 dotenv.config({ path: "./.env" });
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
 connectDB(mongoURI);
 
-// createUser(10);
+// createUser(5);
+// createSingleChat(10);
 const app = express();
 
 //useing middlewares

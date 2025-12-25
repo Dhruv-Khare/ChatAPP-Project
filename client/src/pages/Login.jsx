@@ -22,6 +22,8 @@ const Login = () => {
   const userName = useInputValidation("", userNameValidator);
   const password = useStrongPassword("");
   const avtar = useFileHandler("single");
+  
+
   function handleToggle() {
     setIsLogin(!isLogin);
   }
@@ -103,6 +105,7 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  
                 >
                   Login{" "}
                 </Button>

@@ -61,7 +61,7 @@ const Sidebar = ({ w = "100%" }) => {
     <Stack width={w} direction={"column"} spacing={"3rem"} p={"3rem"}>
       <Typography variant="h4" textTransform={"uppercase"}>
         {" "}
-        Chattu
+        Patrachar
       </Typography>
       <Stack spacing={"1rem"}>
         {adminTabs.map((i) => (
