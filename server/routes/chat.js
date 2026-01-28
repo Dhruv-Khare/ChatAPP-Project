@@ -1,20 +1,20 @@
 import express from "express";
-import { isAuthenticatd } from "../middlewares/auth.js";
 import {
   addMember,
   changeGroupName,
+  deleteChat,
   getChatDetails,
+  getMessages,
   getMyChats,
   getMyGroups,
   leaveGroup,
   newGroupChat,
   removeMembers,
-  sendMessage,
-  deleteChat,
-  getMessages
+  sendMessage
 } from "../controllers/chat.js";
-import { sendAttatchementMulter } from "../middlewares/multer.js";
 import { addMemberValidator, changeGroupNameValidator, chatIdValidator, newGroupChatValidator, removeMemberValidator, sendAttatchementValidator, validate } from "../lib/validators.js";
+import { isAuthenticatd } from "../middlewares/auth.js";
+import { sendAttatchementMulter } from "../middlewares/multer.js";
 
 const app = express.Router();
 

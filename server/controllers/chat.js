@@ -18,7 +18,7 @@ const newGroupChat = TryCatch(async (req, res, next) => {
   // if (members.length < 2) {
   //   return next(new ErrorHandler("Group must have more than 3 members", 400));
   // }
-  //we are handling the abover condition in the validator 
+  //we are handling the abover condition in the validator
   const allMembers = [...members, req.user];
   await Chat.create({
     name,
@@ -237,9 +237,14 @@ const sendMessage = TryCatch(async (req, res, next) => {
   }
   const files = req.files || [];
   if (files.length < 1) {
-    return next(new ErrorHandler("Please provide at least one file", 400));
+    return next(new ErrorHandler("Please upload attachements", 400));
+    if (files.length > 5) {
+      return next(
+        new ErrorHandler("You can upload maximum 5 attachements", 400)
+      );
+    }
   }
-  //uploaad files her
+  //uploaad files here
 
   const attachement = [];
   const messageForDb = {
@@ -273,7 +278,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
 
 const getChatDetails = TryCatch(async (req, res, next) => {
   if (req.query.populate === "true") {
-    console.log("populate is true");
+    // console.log("populate is true");
     const chat = await Chat.findById(req.params.id)
       .populate("members", "name avatar")
       .lean();
@@ -293,7 +298,7 @@ const getChatDetails = TryCatch(async (req, res, next) => {
       chat,
     });
   } else {
-    console.log("populate is false");
+    // console.log("populate is false");
     const chat = await Chat.findById(req.params.id);
     if (!chat) {
       return next(new ErrorHandler("Chat not found", 404));
@@ -397,22 +402,14 @@ const getMessages = TryCatch(async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
-    messages:messages.reverse(),
+    messages: messages.reverse(),
     totalPages,
-
   });
 });
 
 export {
-  getMessages,
-  newGroupChat,
-  getMyChats,
-  getMyGroups,
-  addMember,
-  removeMembers,
-  leaveGroup,
-  sendMessage,
-  getChatDetails,
-  changeGroupName,
-  deleteChat,
+  addMember, changeGroupName,
+  deleteChat, getChatDetails, getMessages, getMyChats,
+  getMyGroups, leaveGroup, newGroupChat, removeMembers, sendMessage
 };
+

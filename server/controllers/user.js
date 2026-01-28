@@ -2,7 +2,7 @@ import { compare } from "bcrypt";
 import { User } from "../models/user.js";
 import { Chat } from "../models/chat.js";
 import { Request } from "../models/request.js";
-import { cookieOptions, emmitEvent, sendToken } from "../utils/features.js";
+import { cookieOptions, emmitEvent, sendToken, uploadFilesToCloudinary } from "../utils/features.js";
 import { TryCatch } from "../middlewares/error.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/event.js";
@@ -10,12 +10,22 @@ import { getOtherMembers } from "../lib/helper.js";
 
 //create a new user and save it to the database and save in cookie
 
-const newUser = async (req, res) => {
+const newUser = TryCatch(async (req, res, next) => {
   const { name, userName, password, bio } = req.body;
-  console.log(req.body);
+  const file = req.file;  
+  // console.log(file );
+
+  if(!file){
+    return next(new ErrorHandler("Please upload avatar",400));
+  }
+  console.log("Cloudinary:", {
+  cloud: process.env.CLOUDINARY_CLOUD_NAME,
+  key: process.env.CLOUDINARY_API_KEY,
+});
+  const result= await uploadFilesToCloudinary([file]);
   const avatar = {
-    public_id: "sample_public_id",
-    url: "https://example.com/avatar.jpg",
+    public_id: result[0].public_id,
+    url: result[0].url,
   };
   const user = await User.create({
     name,
@@ -25,7 +35,7 @@ const newUser = async (req, res) => {
     avatar,
   });
   sendToken(res, user, 200, "User Created Successfully");
-};
+});
 const login = TryCatch(async (req, res, next) => {
   const { userName, password } = req.body;
   const user = await User.findOne({ userName }).select("+password");
@@ -37,7 +47,7 @@ const login = TryCatch(async (req, res, next) => {
   if (!isMatched) {
     return next(new ErrorHandler("Invalid UserName or Password", 404));
   }
-  sendToken(res, user, 200, `${User.name} Login Successfully`);
+  sendToken(res, user, 200, `${user.name} Login Successfully`);
 });
 
 const getMyProfile = TryCatch(async (req, res) => {

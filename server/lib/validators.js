@@ -1,4 +1,4 @@
-import { body, validationResult, check, param, query } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import { ErrorHandler } from "../utils/utility.js";
 
 const validate = (req, res, next) => {
@@ -9,21 +9,21 @@ const validate = (req, res, next) => {
     .map((error) => error.msg)
     .join(", ");
 
-  console.log(errorMsg);
+  // console.log(errorMsg);
   if (errors.isEmpty()) return next();
   else next(new ErrorHandler(errorMsg, 400));
 };
 
 const registerValidator = () => [
   body("name", "Please enter name").notEmpty(),
-  body("username", "Please enter username").notEmpty(),
+  body("userName", "Please enter username").notEmpty(),
   body("password", "Please enter password").notEmpty(),
   body("bio", "Please enter bio").notEmpty(),
-  check("avatar", "Please upload avatar").notEmpty(),
+  // check("avatar", "Please upload avatar").notEmpty(),
 ];
 
 const loginValidator = () => [
-  body("username", "Please enter username").notEmpty(),
+  body("userName", "Please enter username").notEmpty(),
   body("password", "Please enter password").notEmpty(),
 ];
 
@@ -50,10 +50,10 @@ const removeMemberValidator = () => [
 
 const sendAttatchementValidator = () => [
   body("chatId", "Please enter chatId").notEmpty(),
-  check("files", "Please upload attactchements")
-    .notEmpty()
-    .isArray({ min: 1, max: 5 })
-    .withMessage("members must be 1-5"),
+  // check("files", "Please upload attactchements")
+  //   .notEmpty()
+  //   .isArray({ min: 1, max: 5 })
+  //   .withMessage("members must be 1-5"),
   ,
 ];
 const chatIdValidator = () => [
@@ -70,16 +70,12 @@ const acceptFriendReqValidator = () => [
   body("requestId","Please Enter request Id").notEmpty(),
   body("accept").notEmpty().withMessage("Please Add Accept").isBoolean().withMessage("Accept Must be a Boolean"),
 ];
+const adminLoginValidator = () => [
+  body("secretKey","Please Enter Secret Key").notEmpty(),
+];
 export {
-    acceptFriendReqValidator,
-    sendFriendReqValidator,
-    changeGroupNameValidator,
-    chatIdValidator,
-  sendAttatchementValidator,
-  removeMemberValidator,
-  addMemberValidator,
-  registerValidator,
-  validate,
-  loginValidator,
-  newGroupChatValidator,
+  acceptFriendReqValidator, addMemberValidator, adminLoginValidator, changeGroupNameValidator,
+  chatIdValidator, loginValidator,
+  newGroupChatValidator, registerValidator, removeMemberValidator, sendAttatchementValidator, sendFriendReqValidator, validate
 };
+

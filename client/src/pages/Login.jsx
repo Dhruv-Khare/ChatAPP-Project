@@ -13,6 +13,11 @@ import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../componenets/styled/StyledComponent";
 import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
 import { userNameValidator } from "../utils/Validator";
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { userExists } from "../redux/reducer/auth";
+import { server } from "../contants/config";
+import axios from "axios";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,18 +26,65 @@ const Login = () => {
   const bio = useInputValidation("");
   const userName = useInputValidation("", userNameValidator);
   const password = useStrongPassword("");
-  const avtar = useFileHandler("single");
+  const avatar = useFileHandler("single");
   
 
   function handleToggle() {
     setIsLogin(!isLogin);
   }
 
-  const handleSignUp = (e) => {
+  const dispatch=useDispatch();
+   
+  const handleLogin = async(e) => {
+    // console.log("login1");
     e.preventDefault();
+
+    const config={
+      withCredentials:true,
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }
+
+   try {
+    const {data}= await axios.post(`${server}/api/v1/user/login`, {
+      userName: userName.value,
+      password: password.value,
+    },config);
+    // console.log("login2");
+
+    dispatch(userExists(true));
+    toast.success(data.message);
+   } catch (error) {
+    // console.log("login3");
+    toast.error(error?.response?.data.message||"Something went wrong");
+   }
+
   };
-  const handleRegister = (e) => {
+  const handleSignup = async(e) => {
     e.preventDefault();
+    const config={
+      withCredentials:true,
+      headers:{
+        "Content-Type":"multipart/form-data"
+      }
+    }
+    const formData=new FormData();
+    formData.append("name",name.value);
+    formData.append("bio",bio.value);
+    formData.append("avatar",avatar.file);
+    formData.append("userName",userName.value);
+    formData.append("password",password.value);
+
+   try {
+    const {data}= await axios.post(`${server}/api/v1/user/new`, formData,config);
+
+    dispatch(userExists(true));
+    toast.success(data.message);
+   } catch (error) {
+    toast.error(error?.response?.data.message||"Something went wrong");
+   }
+
   };
   return (
     <div
@@ -68,7 +120,7 @@ const Login = () => {
                   width: "100%",
                   marginTop: "1rem",
                 }}
-                onSubmit={handleSignUp}
+                onSubmit={handleLogin}
               >
                 <TextField
                   required
@@ -133,7 +185,7 @@ const Login = () => {
                   height: "100%",
                   marginTop: "1rem",
                 }}
-                onSubmit={handleRegister}
+                onSubmit={handleSignup}
               >
                 <Stack position={"relative"} width={"10rem"} margin={"auto"}>
                   <Avatar
@@ -142,7 +194,7 @@ const Login = () => {
                       height: "10rem",
                       objectFit: "contain",
                     }}
-                    src={avtar.preview}
+                    src={avatar.preview}
                   />
 
                   <IconButton
@@ -159,12 +211,12 @@ const Login = () => {
                       <CameraAltIcon />
                       <VisuallyHiddenInput
                         type="file"
-                        onChange={avtar.changeHandler}
+                        onChange={avatar.changeHandler}
                       />
                     </>
                   </IconButton>
                 </Stack>
-                {avtar.error && (
+                {avatar.error && (
                   <Typography
                     margin={"1rem auto"}
                     width={"fit-content"}
@@ -172,7 +224,7 @@ const Login = () => {
                     color="error"
                     variant=" caption "
                   >
-                    {avtar.error}
+                    {avatar.error}
                   </Typography>
                 )}
                 <TextField
