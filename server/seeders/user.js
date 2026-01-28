@@ -11,8 +11,8 @@ const createUser = async (numUser) => {
         password: "password",
         bio: faker.lorem.paragraph(10),
         avatar: {
-          public_id: faker.image.avatar(),
-          url: faker.system.fileName(),
+          public_id: faker.string.uuid(),
+          url: faker.image.urlLoremFlickr({ category: "people" }),
         },
       });
       userPromise.push(tempUser);
@@ -25,6 +25,5 @@ const createUser = async (numUser) => {
     process.exit(1);
   }
 };
-
 
 export { createUser };

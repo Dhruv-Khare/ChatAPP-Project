@@ -22,9 +22,10 @@ import {
   Logout as LogOutIcon,
   Notifications as NotificationsIcon,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { userNotExists } from "../../redux/reducer/auth";
 import toast from "react-hot-toast";
+import { setIsMobile, setIsSearch } from "../../redux/reducer/msc.js";
 
 const SearchDialog = lazy(() => import("../specific/Search"));
 const NotificationsDialog = lazy(() => import("../specific/Notifications"));
@@ -32,21 +33,17 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroups"));
 
 const Header = () => {
   const navigate = useNavigate();
-  const [ismobile, setIsMobile] = useState(false);
-  const [isSearch, setIsSearch] = useState(false);
+  const {isSearch}=useSelector((state)=>state.msc);
   const [isNewGroup, setIsNewGroup] = useState(false);
   const [isNotification, setIsNotification] = useState(false);
 
   const dispatch=useDispatch();
 
   const handleMobile = () => {
-    console.log("Mobile");
-    setIsMobile((prev) => !prev);
+    // console.log("Mobile");
+    dispatch(setIsMobile(true));
   };
-  const openSearchDialog = () => {
-    console.log("Search");
-    setIsSearch((prev) => !prev);
-  };
+  const openSearchDialog = () =>dispatch(setIsSearch(true));
   const openNEwGroup = () => {
     console.log("New Group");
     setIsNewGroup((prev) => !prev);

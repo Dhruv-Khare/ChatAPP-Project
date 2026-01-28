@@ -1,30 +1,47 @@
 // import React from "react";
 import Header from "./Header";
 import Title from "../shared/Title";
-import { Grid, Skeleton } from "@mui/material";
+import { Drawer, Grid, Skeleton } from "@mui/material";
 import ChatList from "../specific/ChatList";
 import { sampleChats } from "../../contants/sampleData";
 import { useParams } from "react-router-dom";
 import Profile from "../specific/Profile";
 import { useMyChatsQuery } from "../../redux/api/api";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsMobile } from "../../redux/reducer/msc";
+import { useErrors } from "../../hooks/hook";
 
 const AppLayout = () => (WrappedComponent) => {
   const WithLayout = (props) => {
     const params = useParams();
     const chatID = params.chatID;
+    const dispatch=useDispatch();
+
+    const {isMobile}=useSelector((state)=>state.msc);
 
     const {data,isLoading,isError,error,refetch}=useMyChatsQuery("");
-
+    useErrors([{isError,error,}]);
     const handleDeleteChat = (e, _id, groupChat) => {
       e.preventDefault();
       console.log("Delete Chat ", _id, groupChat);
     };
 
+    const handleMobileClose=()=>dispatch(setIsMobile(false));
+
     return (
       <>
         <Title />
         <Header />
-
+        {
+          isLoading?<Skeleton/>:<Drawer open={isMobile} onClose={handleMobileClose}>
+            <ChatList
+              w="70vw"
+              chats={data?.chats}
+              chatID={chatID}
+              handleDeleteChat={handleDeleteChat}
+            />
+          </Drawer>
+        }
         <Grid container height={"calc(100vh - 4rem)"}>
           <Grid
             item

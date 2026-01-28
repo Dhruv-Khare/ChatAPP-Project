@@ -98,7 +98,7 @@ const searchUser = TryCatch(async (req, res) => {
   });
 });
 
-const sendFriendrequest = TryCatch(async (req, res) => {
+const sendFriendrequest = TryCatch(async (req, res,next) => {
   const { userId } = req.body;
 
   const request = await Request.findOne({
