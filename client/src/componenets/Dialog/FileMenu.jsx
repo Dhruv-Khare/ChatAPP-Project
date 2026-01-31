@@ -1,17 +1,141 @@
-import { Menu } from "@mui/material";
+import { ListItemText, Menu, MenuItem, MenuList, Tooltip } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsFileMenu, setUploadingLoader } from "../../redux/reducer/msc";
+import {
+  AudioFile as AudioFileIcon,
+  Image as ImageIcon,
+  UploadFile as UploadFileICon,
+  VideoFile as VideoFileIcon,
+} from "@mui/icons-material";
+import { useRef } from "react";
+import toast from "react-hot-toast";
+import { useSendAttatchementMutation } from "../../redux/api/api";
 // import React from "react";
 
-const FileMenu = ({ anchorE1 }) => {
+const FileMenu = ({ anchorE1 ,chatId}) => {
+
+  const fileRef=useRef(null);
+  const VideoRef=useRef(null);
+  const AudioRef=useRef(null);
+  const ImageRef=useRef(null);
+
+  const { isFileMenu } = useSelector((state) => state.msc);
+  const dispatch = useDispatch();
+
+  const [sendAttatchment]=useSendAttatchementMutation();
+
+  const closeHandler = () => dispatch(setIsFileMenu(false));
+
+  const selectRef = (ref) => {
+    ref.current?.click();
+  };
+
+  const fileChangeHandler = async(e, key) => {
+    const files=Array.from(e.target.files);
+
+    console.log(files);
+
+    if(files.length<=0) return ;
+
+    if(files.length>5) return toast.error(`You can only send 5 ${key} at a time`);
+
+    dispatch(setUploadingLoader(true));
+    const toastId=toast.loading( `Sending ${key}...`);
+    closeHandler();
+    //fetchinghere
+
+    try {
+      const myForm=new FormData();
+      myForm.append("chatId",chatId);
+      files.forEach((file)=>myForm.append("files",file));
+
+      // console.log(myForm);
+
+      const res=await sendAttatchment(myForm);
+      
+      if(res.data) toast.success(`${key} sent Successfully`,{
+        id:toastId
+      })
+      else toast.error(`Failed to send $key`,{id:toastId});
+    } catch (error) {
+      toast.error(error,{id:toastId});
+    }
+    finally{
+      dispatch(setUploadingLoader(false));
+    }
+
+
+  };
+
   return (
-    <Menu anchorEl={anchorE1} open={false}>
+    <Menu anchorEl={anchorE1} open={isFileMenu} onClose={closeHandler}>
       <div
         style={{
           width: "10rem",
         }}
       >
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ab vero
-        dolorem nisi nemo exercitationem non quaerat ratione esse aperiam
-        corporis!
+        <MenuList>
+          <MenuItem onClick={()=>selectRef(ImageRef)}>
+            <Tooltip title="Image">
+              <ImageIcon />
+            </Tooltip>
+            <ListItemText style={{ marginLeft: "0.5rem" }}>Image</ListItemText>
+            <input
+              type="file"
+              multiple
+              accept="image/png, image/jpeg, image/gif"
+              style={{ display: "none" }}
+              ref={ImageRef}
+              onChange={(e) => fileChangeHandler(e, "Images")}
+            />
+          </MenuItem>
+
+          <MenuItem onClick={()=>selectRef(AudioRef)}>
+            <Tooltip title="Audio">
+              <AudioFileIcon />
+            </Tooltip>
+            <ListItemText style={{ marginLeft: "0.5rem" }}>Audio</ListItemText>
+            <input
+              type="file"
+              multiple
+              accept="audio/mpeg, audio/wav, audio/ogg"
+              style={{ display: "none" }}
+              ref={AudioRef}
+              onChange={(e) => fileChangeHandler(e, "Audios")}
+            />
+          </MenuItem>
+
+          <MenuItem onClick={()=>selectRef(VideoRef)}>
+            <Tooltip title="Video">
+              <VideoFileIcon />
+            </Tooltip>
+            <ListItemText style={{ marginLeft: "0.5rem" }}>Video</ListItemText>
+            <input
+              type="file"
+              multiple
+              accept="video/mp4, video/webm, video/ogg"
+              style={{ display: "none" }}
+              ref={VideoRef}
+              onChange={(e) => fileChangeHandler(e, "Videos")}
+            />
+          </MenuItem>
+        
+       
+          <MenuItem onClick={()=>selectRef(fileRef)}>
+            <Tooltip title="File">
+              <UploadFileICon />
+            </Tooltip>
+            <ListItemText style={{ marginLeft: "0.5rem" }}>File</ListItemText>
+            <input
+              type="file"
+              multiple
+              accept="*"
+              style={{ display: "none" }}
+              ref={fileRef}
+              onChange={(e) => fileChangeHandler(e, "Files")}
+            />
+          </MenuItem>
+        </MenuList>
       </div>
     </Menu>
   );

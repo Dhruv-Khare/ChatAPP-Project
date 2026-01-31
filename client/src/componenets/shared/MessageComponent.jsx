@@ -3,13 +3,15 @@ import React, { memo } from "react";
 import { lightBlue } from "../../contants/color";
 import moment from "moment";
 import { fileFormate } from "../../lib/features";
-import RenderAttatchment from "./RenderAttatchment";
+import RenderAttachment from "./RenderAttachment";
 
 const MessageComponent = ({ message, user }) => {
-  const { sender, content, attatchements = [], createdAt } = message;
-  const sameSender = sender._id == user._id;
 
+  // console.log(message);
+  const { sender, content, attachements = [], createdAt } = message;
+  const sameSender = sender.id|| sender._id == user._id;
   const timeAgo = moment(createdAt).fromNow();
+
   return (
     <div
       style={{
@@ -29,14 +31,14 @@ const MessageComponent = ({ message, user }) => {
       {content && <Typography>{content}</Typography>}
 
       {/*Attatchment */}
-      {attatchements.length > 0 &&
-        attatchements.map((attatchement, index) => {
-          const url = attatchement.url;
+      {attachements.length > 0 &&
+        attachements.map((attachement, index) => {
+          const url = attachement.url;
           const file = fileFormate(url);
           return (
             <Box key={index}>
               <a href={url} target="_blank" download style={{ color: "black" }}>
-                {RenderAttatchment(file, url)}
+                {RenderAttachment(file, url)}
               </a>
             </Box>
           );

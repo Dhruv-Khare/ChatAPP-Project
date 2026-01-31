@@ -6,11 +6,11 @@ import ChatItem from "../shared/ChatItem";
 const ChatList = ({
   w = "100%",
   chats = [],
-  chatID,
+  chatId,
   onlineUsers = [],
   newMessagesAlert = [
     {
-      chatID: "",
+      chatId: "",
       count: 0,
     },
   ],
@@ -25,7 +25,7 @@ const ChatList = ({
           onlineUsers.includes(member)
         );
         const newMessageAlert = newMessagesAlert.find(
-          ({ chatID }) => chatID === _id
+          ({ chatId }) => chatId === _id
         );
         return (
           <ChatItem
@@ -37,7 +37,7 @@ const ChatList = ({
             _id={_id}
             key={_id}
             groupChat={groupChat}
-            sameSender={chatID === _id}
+            sameSender={chatId === _id}
             handleDeleteChat={handleDeleteChat}
           />
           // <div key={_id}>{data}</div>

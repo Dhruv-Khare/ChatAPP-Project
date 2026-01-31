@@ -1,6 +1,6 @@
 import {
   ALERT,
-  NEW_ATTACHMENT,
+  NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   REFETCH_CHATS,
 } from "../constants/event.js";
@@ -9,7 +9,7 @@ import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
 import { Message } from "../models/message.js";
 import { User } from "../models/user.js";
-import { deleteFilesFromCloudinary, emmitEvent } from "../utils/features.js";
+import { deleteFilesFromCloudinary, emmitEvent, uploadFilesToCloudinary } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 
 const newGroupChat = TryCatch(async (req, res, next) => {
@@ -44,7 +44,7 @@ const getMyChats = TryCatch(async (req, res, next) => {
   // console.log("req.user:", req.user);
   const transformedChats = chats.map(({ _id, name, members, groupChat }) => {
     const otherMember = getOtherMembers(members, req.user);
-    console.log(otherMember);
+    // console.log(otherMember);
     return {
       _id,
       groupChat,
@@ -246,10 +246,10 @@ const sendMessage = TryCatch(async (req, res, next) => {
   }
   //uploaad files here
 
-  const attachement = [];
+  const attachements = await uploadFilesToCloudinary(files);
   const messageForDb = {
     content: "",
-    attachement,
+    attachements,
     sender: me._id,
 
     chat: chatId,
@@ -264,7 +264,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
 
   const message = await Message.create(messageForDb);
 
-  emmitEvent(req, NEW_ATTACHMENT, chat.members, {
+  emmitEvent(req, NEW_MESSAGE, chat.members, {
     message: messageForRealTime,
     chatId,
   });

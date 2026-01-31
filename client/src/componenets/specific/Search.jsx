@@ -18,31 +18,33 @@ import { setIsSearch } from "../../redux/reducer/msc";
 import { useLazySearchUserQuery, useSendFriendReqMutation } from "../../redux/api/api";
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useMutationHokk } from "../../hooks/hook";
 
 const Search = () => {
   const search = useInputValidation("");
-  let isLoadingSendFriendRequest = false;
+  // let isLoadingSendFriendRequest = false;
   const [users, setUsers] = useState([]);
 
   const {isSearch}=useSelector((state)=>state.msc);
   const dispatch=useDispatch();
 
   const [searchUser]=useLazySearchUserQuery();
-  const [sendFriendReq]=useSendFriendReqMutation();
+  const [sendFriendReq,isLoadingSendFriendRequest,]= useMutationHokk(useSendFriendReqMutation);
 
   const addFriendHandler = async(id) => {
     // console.log("Add Friend Handler ", id);
-    try {
-      const res=await sendFriendReq({ userId:id });
-      if(res.data){
-        toast.success("Friend Request Sent");
-      }else{
-        toast.error(res?.error?.data?.message||"something went wrong");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
+    // try {
+    //   const res=await sendFriendReq({ userId:id });
+    //   if(res.data){
+    //     toast.success("Friend Request Sent");
+    //   }else{
+    //     toast.error(res?.error?.data?.message||"something went wrong");
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   toast.error("Something went wrong");
+    // }
+    sendFriendReq("Sending Friend Request...",{ userId:id });
   };
 
   const searchCloseHandler = () =>dispatch(setIsSearch(false));

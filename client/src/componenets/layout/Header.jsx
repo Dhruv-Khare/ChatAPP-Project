@@ -7,6 +7,7 @@ import { server } from "../../contants/config.js";
 import {
   AppBar,
   Backdrop,
+  Badge,
   Box,
   IconButton,
   Toolbar,
@@ -25,7 +26,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { userNotExists } from "../../redux/reducer/auth";
 import toast from "react-hot-toast";
-import { setIsMobile, setIsSearch } from "../../redux/reducer/msc.js";
+import {
+  setIsMobile,
+  setIsNotifications,
+  setIsSearch,
+} from "../../redux/reducer/msc.js";
+import { resetNotificationCount } from "../../redux/reducer/chat.js";
 
 const SearchDialog = lazy(() => import("../specific/Search"));
 const NotificationsDialog = lazy(() => import("../specific/Notifications"));
@@ -33,17 +39,18 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroups"));
 
 const Header = () => {
   const navigate = useNavigate();
-  const {isSearch}=useSelector((state)=>state.msc);
+  const { isSearch, isNotifications } = useSelector((state) => state.msc);
+  const { notificationCount } = useSelector((state) => state.chat);
   const [isNewGroup, setIsNewGroup] = useState(false);
-  const [isNotification, setIsNotification] = useState(false);
+  // const [isNotification, setIsNotification] = useState(false);
 
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   const handleMobile = () => {
     // console.log("Mobile");
     dispatch(setIsMobile(true));
   };
-  const openSearchDialog = () =>dispatch(setIsSearch(true));
+  const openSearchDialog = () => dispatch(setIsSearch(true));
   const openNEwGroup = () => {
     console.log("New Group");
     setIsNewGroup((prev) => !prev);
@@ -51,22 +58,21 @@ const Header = () => {
   const navigateToGroups = () => {
     navigate("/groups");
   };
-  const logoutHandler = async() => {
+  const logoutHandler = async () => {
     // console.log("Logout");
     try {
-      const {data}=await axios.get(`${server}/api/v1/user/logout`,{withCredentials:true});
+      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
       dispatch(userNotExists());
       toast.success(data.message);
-
     } catch (error) {
-      toast.error(error?.response?.data?.message||"Something went wrong");
-      
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
-    
   };
   const openNotification = () => {
-    console.log("Notification");
-    setIsNotification((prev) => !prev);
+    dispatch(setIsNotifications(true));
+    dispatch(resetNotificationCount());
   };
   return (
     <>
@@ -82,7 +88,8 @@ const Header = () => {
                 },
               }}
             >
-  Patrachar            </Typography>
+              Patrachar{" "}
+            </Typography>
             <Box
               sx={{
                 display: {
@@ -134,6 +141,7 @@ const Header = () => {
                 icon={<NotificationsIcon />}
                 title="Notifications"
                 onClick={openNotification}
+                value={notificationCount}
               />
               {/* <Tooltip title="manage Groups">
                 <IconButton
@@ -164,7 +172,7 @@ const Header = () => {
           <NewGroupDialog />
         </Suspense>
       )}
-      {isNotification && (
+      {isNotifications && (
         <Suspense fallback={<Backdrop open={true} />}>
           <NotificationsDialog />
         </Suspense>
@@ -172,11 +180,17 @@ const Header = () => {
     </>
   );
 };
-const IconBtn = ({ icon, title, onClick }) => {
+const IconBtn = ({ icon, title, onClick, value }) => {
   return (
     <Tooltip title={title}>
       <IconButton color="inherit " size="large" onClick={onClick}>
-        {icon}
+        {value ? (
+          <Badge badgeContent={value} color="error">
+            {icon}
+          </Badge>
+        ) : (
+          icon
+        )}
       </IconButton>
     </Tooltip>
   );

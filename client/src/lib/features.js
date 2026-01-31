@@ -15,7 +15,10 @@ const fileFormate = (url = "") => {
 
   return "file";
 };
-const TransformImage = (url, width = 100) => url;
+const TransformImage = (url, width = 100) => {
+  const newUrl= url.replace("upload",`upload/dpr_auto/w_${width}`);
+  return newUrl;
+};
 
 const getLastDays = () => {
   const currenetDate = moment();
@@ -27,4 +30,11 @@ const getLastDays = () => {
   }
   return last7Days;
 };
-export { fileFormate, TransformImage, getLastDays };
+
+const getorSaveLocalstorage=({key,value,get})=>{
+
+  if(get) return localStorage.getItem(key)? JSON.parse(localStorage.getItem(key)):null;
+  else localStorage.setItem(key,JSON.stringify(value));
+
+}
+export { fileFormate, TransformImage, getLastDays,getorSaveLocalstorage };

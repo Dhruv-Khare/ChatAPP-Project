@@ -20,6 +20,8 @@ import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 
 import {v2 as cloudinary} from "cloudinary";
+import { corsOptions } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/auth.js";
 
 dotenv.config({ path: "./.env" });
 const mongoURI = process.env.MONGO_URI;
@@ -41,23 +43,18 @@ const app = express();
 const userSocketIDs = new Map();
 
 const server = createServer(app);
-const io = new Server(server, {});
+const io = new Server(server, {
+  cors:corsOptions,
+});
+
+app.set("io",io);
 
 //useing middlewares
 app.use(express.json());
 // app.use(express.urlencoded()); this we use when only we send text data but we have sending othere type of data like in avatar we have sending file so we use multer for that ;
 app.use(cookieParser());
 app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:4173",
-      process.env.CLIENT_URL,
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
+  cors(corsOptions),
 );
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/chat", chatRoutes);
@@ -70,13 +67,15 @@ app.get("/", (req, res) => {
   res.send("hello World");
 });
 
+io.use((socket, next) => {
+  cookieParser()(socket.request,socket.request.res,async (error)=>socketAuthenticator(error,socket,next))
+});
+
 io.on("connection", (socket) => {
-  const user = {
-    _id: "wdhdoiqwj",
-    name: "huggu",
-  };
+  const user =socket.user;
+  // console.log(user);
   userSocketIDs.set(user._id.toString(), socket.id);
-  console.log(userSocketIDs);
+  // console.log(userSocketIDs);
   socket.on(NEW_MESSAGE, async ({ chatId, message, members }) => {
     const messageForRealTime = {
       content: message,
@@ -91,9 +90,9 @@ io.on("connection", (socket) => {
     const messageForDB = {
       content: message,
       sender: user._id,
-      chatId: chatId,
+      chat: chatId,
     };
-
+    console.log("Emmiting ",messageForRealTime);
     const membersSocket = getSockets(members);
     io.to(membersSocket).emit(NEW_MESSAGE, {
       chatId,
