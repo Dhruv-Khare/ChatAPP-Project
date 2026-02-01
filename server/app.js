@@ -15,7 +15,7 @@ import { createSingleChat } from "./seeders/chat.js";
 
 //start- implementation of socket.io
 import { Server } from "socket.io";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/event.js";
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from "./constants/event.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
       sender: user._id,
       chat: chatId,
     };
-    console.log("Emmiting ",messageForRealTime);
+    // console.log("Emmiting ",messageForRealTime);
     const membersSocket = getSockets(members);
     io.to(membersSocket).emit(NEW_MESSAGE, {
       chatId,
@@ -106,6 +106,19 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log("error in saving message to db:", error);
     }
+  });
+
+  socket.on(START_TYPING,({members,chatId})=>{
+    console.log("start - typing",members,chatId);
+
+    const membersSocket=getSockets(members);
+    socket.to(membersSocket).emit(START_TYPING,{chatId});
+  });
+  socket.on(STOP_TYPING,({members,chatId})=>{
+    console.log("stop - typing",members,chatId);
+
+    const membersSocket=getSockets(members);
+    socket.to(membersSocket).emit(STOP_TYPING,{chatId});
   });
   socket.on("disconnect", () => {
     userSocketIDs.delete(user._id.toString());
