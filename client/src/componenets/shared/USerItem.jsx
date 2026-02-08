@@ -11,6 +11,7 @@ const UserItem = ({
   styling = {},
 }) => {
   const { name, _id, avatar } = user;
+  // console.log(avatar);
   return (
     <ListItem>
       <Stack
@@ -20,7 +21,7 @@ const UserItem = ({
         width={"100%"}
         {...styling}
       >
-        <Avatar src={TransformImage(avatar)} />
+        <Avatar src={avatar} />
         <Typography
           variant="body1"
           sx={{

@@ -16,6 +16,7 @@ const fileFormate = (url = "") => {
   return "file";
 };
 const TransformImage = (url, width = 100) => {
+  // console.log(url);
   const newUrl= url.replace("upload",`upload/dpr_auto/w_${width}`);
   return newUrl;
 };

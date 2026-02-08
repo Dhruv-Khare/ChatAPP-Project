@@ -117,7 +117,7 @@ const addMember = TryCatch(async (req, res, next) => {
   chat.members.push(
     ...newMembers
       .filter((member) => {
-        !chat.members.includes(member._id);
+        return  !chat.members.includes(member._id);
       })
       .map((member) => member._id)
   );
@@ -166,7 +166,7 @@ const removeMembers = TryCatch(async (req, res, next) => {
   if (chat.members.length <= 3) {
     return next(new ErrorHandler("Group must have more than 3 members", 400));
   }
-
+   const allMembers=chat.members.map((i)=>i.toString());
   chat.members = chat.members.filter(
     (member) => member.toString() !== userId.toString()
   );
@@ -180,7 +180,7 @@ const removeMembers = TryCatch(async (req, res, next) => {
     `Removed ${userTobeRemoved?.name || "a member"} from the group ${chat.name}`
   );
 
-  emmitEvent(req, REFETCH_CHATS, chat.members);
+  emmitEvent(req, REFETCH_CHATS, allMembers);
 
   return res.status(200).json({
     success: true,
@@ -207,7 +207,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
     const newCreator = remainingMembers[randomNumber];
     chat.creator = newCreator;
   }
-
+  const allMembers=chat.members.map((i)=>i.toString());
   chat.members = remainingMembers;
   await chat.save();
   emmitEvent(
@@ -216,7 +216,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
     chat.members,
     `User ${req.user.name} has left the group ${chat.name}`
   );
-  // emmitEvent(req, REFETCH_CHATS, chat.members);
+  emmitEvent(req, REFETCH_CHATS, allMembers);
   return res.status(200).json({
     success: true,
     message: "User has left the group successfully",
@@ -387,6 +387,13 @@ const deleteChat = TryCatch(async (req, res, next) => {
 const getMessages = TryCatch(async (req, res, next) => {
   const chatId = req.params.id;
   const { page = 1, limit = 20 } = req.query;
+
+  const chat=await Chat.findById(chatId);
+
+  if(!chat) return next(new ErrorHandler("Chat Not Found",404));
+
+  if(!chat.members.includes(req.user.toString()))
+    return next(new ErrorHandler("You are not allowed to access this chat",403));
 
   const [messages, totalMessages] = await Promise.all([
     Message.find({ chat: chatId })

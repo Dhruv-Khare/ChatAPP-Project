@@ -12,7 +12,7 @@ import FileMenu from "../componenets/Dialog/FileMenu.jsx";
 // import { sampleMessage } from "../contants/sampleData.js";
 import MessageComponent from "../componenets/shared/MessageComponent.jsx";
 import { getSocket } from "../socket.jsx";
-import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../contants/event.js";
+import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../contants/event.js";
 import {
   useGetChatDetailsQuery,
   useGetMyMessagesQuery,
@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux";
 import { setIsFileMenu } from "../redux/reducer/msc.js";
 import { removeNewMessageAlert } from "../redux/reducer/chat.js";
 import { TypingLoader } from "../componenets/layout/Loaders.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
@@ -30,6 +31,7 @@ const Chat = ({ chatId, user }) => {
 
   const socket = getSocket();
   const dispatch = useDispatch();
+  const navigate=useNavigate();
   // console.log(chatId===user._id,chatId,user._id);
   // const fileMenuRef = useRef(null);
   const [message, setMessage] = useState("");
@@ -110,6 +112,10 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [message]);
 
+  useEffect(()=>{
+    if(!chatDetails.data?.chat) return navigate("/");
+  },[chatDetails.data]);
+
   const newMessagesHandler = useCallback(
     (data) => {
       // console.log(data);
@@ -136,8 +142,23 @@ const Chat = ({ chatId, user }) => {
     },
     [chatId],
   );
+  const newAlertListener= useCallback((content)=>{
+    const messageForAlert={
+      content,
+      sender:{
+        _id:"jshjahifoioeiofoiu",
+        name:"Admin",
+      },
+      chat:chatId,
+      createdAt:new Date().toISOString(),
+    };
+
+    setMessage((prev)=>[...prev,messageForAlert]);
+
+  },[chatId])
 
   const eventArr = {
+    [ALERT]:newAlertListener,
     [NEW_MESSAGE]: newMessagesHandler,
     [START_TYPING]: startTypingListener,
     [STOP_TYPING]: stopTypingListener,
@@ -221,7 +242,7 @@ const Chat = ({ chatId, user }) => {
           </IconButton>
         </Stack>
       </form>
-      <FileMenu anchorE1={fileMenuAnchor} chatId={chatId} />
+      <FileMenu anchorEl={fileMenuAnchor} chatId={chatId} />
     </Fragment>
   );
 };

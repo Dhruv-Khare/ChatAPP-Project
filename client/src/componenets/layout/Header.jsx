@@ -28,6 +28,7 @@ import { userNotExists } from "../../redux/reducer/auth";
 import toast from "react-hot-toast";
 import {
   setIsMobile,
+  setIsNewGroup,
   setIsNotifications,
   setIsSearch,
 } from "../../redux/reducer/msc.js";
@@ -39,9 +40,9 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroups"));
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isSearch, isNotifications } = useSelector((state) => state.msc);
+  const { isSearch, isNotifications,isNewGroup } = useSelector((state) => state.msc);
   const { notificationCount } = useSelector((state) => state.chat);
-  const [isNewGroup, setIsNewGroup] = useState(false);
+  // const [isNewGroup, setIsNewGroup] = useState(false);
   // const [isNotification, setIsNotification] = useState(false);
 
   const dispatch = useDispatch();
@@ -53,7 +54,8 @@ const Header = () => {
   const openSearchDialog = () => dispatch(setIsSearch(true));
   const openNEwGroup = () => {
     console.log("New Group");
-    setIsNewGroup((prev) => !prev);
+    // setIsNewGroup((prev) => !prev);
+    dispatch(setIsNewGroup(true));
   };
   const navigateToGroups = () => {
     navigate("/groups");

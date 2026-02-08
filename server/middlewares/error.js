@@ -17,10 +17,16 @@ const errorMiddleware = (err, req, res, next) => {
     err.message = `Invalid format of ${err.path} field`;
   }
   // console.log(process.env.NODE_ENV.trim()=== "DEVELOPMENT");
-  return res.status(err.statusCode).json({
-    success: false,
-    message: envMode === "DEVELOPMENT" ? err : err.message,
-  });
+  const response={
+    success:false,
+    message:err.message,
+  }
+  if(envMode==="DEVELOPMENT")
+  {
+    response.error=err;
+  }
+
+  return res.status(err.statusCode).json(response);
 };
 const TryCatch = (passedFunc) => async (req, res, next) => {
   try {

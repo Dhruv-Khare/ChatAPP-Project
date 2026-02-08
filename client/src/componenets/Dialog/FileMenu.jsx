@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { useSendAttatchementMutation } from "../../redux/api/api";
 // import React from "react";
 
-const FileMenu = ({ anchorE1 ,chatId}) => {
+const FileMenu = ({ anchorEl ,chatId}) => {
 
   const fileRef=useRef(null);
   const VideoRef=useRef(null);
@@ -68,7 +68,7 @@ const FileMenu = ({ anchorE1 ,chatId}) => {
   };
 
   return (
-    <Menu anchorEl={anchorE1} open={isFileMenu} onClose={closeHandler}>
+    <Menu anchorEl={anchorEl} open={isFileMenu} onClose={closeHandler}>
       <div
         style={{
           width: "10rem",
