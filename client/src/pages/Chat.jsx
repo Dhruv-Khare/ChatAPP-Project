@@ -12,7 +12,14 @@ import FileMenu from "../componenets/Dialog/FileMenu.jsx";
 // import { sampleMessage } from "../contants/sampleData.js";
 import MessageComponent from "../componenets/shared/MessageComponent.jsx";
 import { getSocket } from "../socket.jsx";
-import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../contants/event.js";
+import {
+  ALERT,
+  CHAT_JOINED,
+  CHAT_LEAVED,
+  NEW_MESSAGE,
+  START_TYPING,
+  STOP_TYPING,
+} from "../contants/event.js";
 import {
   useGetChatDetailsQuery,
   useGetMyMessagesQuery,
@@ -31,7 +38,7 @@ const Chat = ({ chatId, user }) => {
 
   const socket = getSocket();
   const dispatch = useDispatch();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   // console.log(chatId===user._id,chatId,user._id);
   // const fileMenuRef = useRef(null);
   const [message, setMessage] = useState("");
@@ -99,11 +106,14 @@ const Chat = ({ chatId, user }) => {
 
   useEffect(() => {
     dispatch(removeNewMessageAlert(chatId));
+    socket.emit(CHAT_JOINED, { userId:user._id , members });
     return () => {
       setMessage("");
       setMessages([]);
       setOldMessages([]);
       setPage(1);
+          socket.emit(CHAT_LEAVED, { userId:user._id , members });
+
     };
   }, [chatId]);
 
@@ -112,9 +122,9 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [message]);
 
-  useEffect(()=>{
-    if(!chatDetails.data?.chat) return navigate("/");
-  },[chatDetails.data]);
+  useEffect(() => {
+    if (chatDetails.isError) return navigate("/");
+  }, [chatDetails.isError]);
 
   const newMessagesHandler = useCallback(
     (data) => {
@@ -142,23 +152,26 @@ const Chat = ({ chatId, user }) => {
     },
     [chatId],
   );
-  const newAlertListener= useCallback((content)=>{
-    const messageForAlert={
-      content,
-      sender:{
-        _id:"jshjahifoioeiofoiu",
-        name:"Admin",
-      },
-      chat:chatId,
-      createdAt:new Date().toISOString(),
-    };
+  const newAlertListener = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      const messageForAlert = {
+        content: data.message,
+        sender: {
+          _id: "jshjahifoioeiofoiu",
+          name: "Admin",
+        },
+        chat: chatId,
+        createdAt: new Date().toISOString(),
+      };
 
-    setMessage((prev)=>[...prev,messageForAlert]);
-
-  },[chatId])
+      setMessage((prev) => [...prev, messageForAlert]);
+    },
+    [chatId],
+  );
 
   const eventArr = {
-    [ALERT]:newAlertListener,
+    [ALERT]: newAlertListener,
     [NEW_MESSAGE]: newMessagesHandler,
     [START_TYPING]: startTypingListener,
     [STOP_TYPING]: stopTypingListener,

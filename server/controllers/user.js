@@ -13,15 +13,12 @@ import { getOtherMembers } from "../lib/helper.js";
 const newUser = TryCatch(async (req, res, next) => {
   const { name, userName, password, bio } = req.body;
   const file = req.file;  
-  // console.log(file );
+  
 
   if(!file){
     return next(new ErrorHandler("Please upload avatar",400));
   }
-//   console.log("Cloudinary:", {
-//   cloud: process.env.CLOUDINARY_CLOUD_NAME,
-//   key: process.env.CLOUDINARY_API_KEY,
-// });
+
   const result= await uploadFilesToCloudinary([file]);
   const avatar = {
     public_id: result[0].public_id,
@@ -91,7 +88,7 @@ const searchUser = TryCatch(async (req, res) => {
     avatar: avatar.url,
   }));
 
-  // console.log(myChats);
+ 
   return res.status(200).json({
     success: true,
     users,
@@ -125,12 +122,10 @@ const sendFriendrequest = TryCatch(async (req, res,next) => {
 
 const acceptFriendReq = TryCatch(async (req, res,next) => {
   const { requestId, accept } = req.body;
- debugger;
   const request = await Request.findById(requestId)
     .populate("sender", "name")
     .populate("receiver", "name");
 
-  // console.log(request);
   if (!request) return next(new ErrorHandler("request not found", 404));
 
   if (request.receiver._id.toString() !== req.user.toString())

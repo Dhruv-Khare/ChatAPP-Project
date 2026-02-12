@@ -17,8 +17,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Link as LinkComponent, Navigate, useLocation } from "react-router-dom";
+import { Link as LinkComponent, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { grayColor } from "../../contants/color";
+import { useDispatch, useSelector } from "react-redux";
+import { adminLogout } from "../../redux/thunk/admin";
 
 const Link = styled(LinkComponent)`
   text-decoration: none;
@@ -52,11 +54,16 @@ const adminTabs = [
     icon: <MessageIcon />,
   },
 ];
-const logoutHandler = () => {
-  console.log("logOut");
-};
 const Sidebar = ({ w = "100%" }) => {
   const location = useLocation();
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
+  const logoutHandler = () => {
+    console.log("logOut");
+    dispatch(adminLogout());
+    // navigate("/admin");
+    
+  };
   return (
     <Stack width={w} direction={"column"} spacing={"3rem"} p={"3rem"}>
       <Typography variant="h4" textTransform={"uppercase"}>
@@ -94,8 +101,9 @@ const Sidebar = ({ w = "100%" }) => {
     </Stack>
   );
 };
-const isAdmin = false;
 const AdminLayout = ({ children }) => {
+    const {isAdmin}=useSelector(state=>state.auth)
+  
   const [isMobile, setIsMobile] = useState(false);
   const handleMobile = () => {
     setIsMobile((prev) => !prev);
@@ -104,7 +112,7 @@ const AdminLayout = ({ children }) => {
     setIsMobile(false);
   };
 
-  if (!isAdmin) <Navigate to={"/admin"} />;
+  if (!isAdmin) return  <Navigate to={"/admin"} />;
   return (
     <Grid container minHeight={"100vh"}>
       <Box

@@ -21,70 +21,84 @@ import axios from "axios";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const name = useInputValidation("");
   const bio = useInputValidation("");
   const userName = useInputValidation("", userNameValidator);
   const password = useStrongPassword("");
   const avatar = useFileHandler("single");
-  
 
   function handleToggle() {
     setIsLogin(!isLogin);
   }
 
-  const dispatch=useDispatch();
-   
-  const handleLogin = async(e) => {
+  const dispatch = useDispatch();
+
+  const handleLogin = async (e) => {
     // console.log("login1");
     e.preventDefault();
+    setIsLoading(true);
+    const toastId=toast.loading("Logging In...");
 
-    const config={
-      withCredentials:true,
-      headers:{
-        "Content-Type":"application/json"
-      }
+    const config = {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const { data } = await axios.post(
+        `${server}/api/v1/user/login`,
+        {
+          userName: userName.value,
+          password: password.value,
+        },
+        config,
+      );
+      // console.log("login2");
+
+      dispatch(userExists(data?.user));
+      toast.success(data.message,{id:toastId});
+    } catch (error) {
+      // console.log("login3");
+      toast.error(error?.response?.data.message || "Something went wrong",{id:toastId});
+    } finally {
+      setIsLoading(false);
     }
-
-   try {
-    const {data}= await axios.post(`${server}/api/v1/user/login`, {
-      userName: userName.value,
-      password: password.value,
-    },config);
-    // console.log("login2");
-
-    dispatch(userExists(true));
-    toast.success(data.message);
-   } catch (error) {
-    // console.log("login3");
-    toast.error(error?.response?.data.message||"Something went wrong");
-   }
-
   };
-  const handleSignup = async(e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    const config={
-      withCredentials:true,
-      headers:{
-        "Content-Type":"multipart/form-data"
-      }
+    setIsLoading(true);
+    const toastId=toast.loading("Signing Up...");
+    const config = {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    };
+    const formData = new FormData();
+    formData.append("name", name.value);
+    formData.append("bio", bio.value);
+    formData.append("avatar", avatar.file);
+    formData.append("userName", userName.value);
+    formData.append("password", password.value);
+
+    try {
+      const { data } = await axios.post(
+        `${server}/api/v1/user/new`,
+        formData,
+        config,
+      );
+
+      dispatch(userExists(data?.user));
+      toast.success(data.message,{id:toastId});
+    } catch (error) {
+      toast.error(error?.response?.data.message || "Something went wrong",{id:toastId});
+    } finally {
+      setIsLoading(false);
     }
-    const formData=new FormData();
-    formData.append("name",name.value);
-    formData.append("bio",bio.value);
-    formData.append("avatar",avatar.file);
-    formData.append("userName",userName.value);
-    formData.append("password",password.value);
-
-   try {
-    const {data}= await axios.post(`${server}/api/v1/user/new`, formData,config);
-
-    dispatch(userExists(true));
-    toast.success(data.message);
-   } catch (error) {
-    toast.error(error?.response?.data.message||"Something went wrong");
-   }
-
   };
   return (
     <div
@@ -157,7 +171,7 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
-                  
+                  disabled={isLoading}
                 >
                   Login{" "}
                 </Button>
@@ -171,6 +185,7 @@ const Login = () => {
                   type="submit"
                   fullWidth
                   onClick={handleToggle}
+                  disabled={isLoading}
                 >
                   Sign Up Instead{" "}
                 </Button>
@@ -280,6 +295,7 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   SignUp{" "}
                 </Button>
@@ -293,6 +309,7 @@ const Login = () => {
                   type="submit"
                   fullWidth
                   onClick={handleToggle}
+                  disabled={isLoading}
                 >
                   Login Instead{" "}
                 </Button>

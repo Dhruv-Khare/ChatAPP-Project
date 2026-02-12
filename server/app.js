@@ -15,7 +15,7 @@ import { createSingleChat } from "./seeders/chat.js";
 
 //start- implementation of socket.io
 import { Server } from "socket.io";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from "./constants/event.js";
+import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, NEW_MESSAGE_ALERT, ONLINEUSER, START_TYPING, STOP_TYPING } from "./constants/event.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 
@@ -28,6 +28,8 @@ const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY || "ygdhghjgiuyiughgu";
+
+const onlineUsers=new Set();
 connectDB(mongoURI);
 
 // createUser(5);
@@ -120,10 +122,26 @@ io.on("connection", (socket) => {
     const membersSocket=getSockets(members);
     socket.to(membersSocket).emit(STOP_TYPING,{chatId});
   });
+   socket.on(CHAT_JOINED,({userId,members})=>{
+    onlineUsers.add(userId.toString());
+
+    const memberSocket=getSockets(members);
+    io.to(memberSocket).emit(ONLINEUSER,Array.from(onlineUsers));
+  })
+  socket.on(CHAT_LEAVED,({userId,members})=>{
+    onlineUsers.delete(userId.toString());
+
+    const memberSocket=getSockets(members);
+    io.to(memberSocket).emit(ONLINEUSER,Array.from(onlineUsers));
+  })
   socket.on("disconnect", () => {
     userSocketIDs.delete(user._id.toString());
-    console.log("user disconnected");
+    // console.log("user disconnected");
+    onlineUsers.delete(user._id.toString());
+    socket.broadcast.emit(ONLINEUSER,Array.from(onlineUsers));
   });
+
+ 
 });
 
 app.use(errorMiddleware);

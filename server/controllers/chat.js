@@ -39,12 +39,9 @@ const getMyChats = TryCatch(async (req, res, next) => {
   const chats = await Chat.find({
     members: req.user,
   }).populate("members", "name avatar");
-  // console.log("chats:", chats);
-
-  // console.log("req.user:", req.user);
+  
   const transformedChats = chats.map(({ _id, name, members, groupChat }) => {
     const otherMember = getOtherMembers(members, req.user);
-    // console.log(otherMember);
     return {
       _id,
       groupChat,
@@ -96,15 +93,13 @@ const addMember = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("Please provide members to add", 400));
   }
   const chat = await Chat.findById(chatId);
-  // console.log("chat:", chat);
-  // console.log("members:", members);
+  
   if (!chat) {
     return next(new ErrorHandler("Chat not found", 404));
   }
   if (!chat.groupChat) {
     return next(new ErrorHandler("This is not a group chat", 400));
   }
-  // console.log(req.user);
   if (chat.creator.toString() !== req.user.toString()) {
     return next(new ErrorHandler("you are not allowed to add members", 400));
   }
@@ -113,7 +108,6 @@ const addMember = TryCatch(async (req, res, next) => {
   );
 
   const newMembers = await Promise.all(newUserPromises);
-  // console.log("newMembers:", newMembers);
   chat.members.push(
     ...newMembers
       .filter((member) => {
@@ -143,8 +137,7 @@ const addMember = TryCatch(async (req, res, next) => {
 
 const removeMembers = TryCatch(async (req, res, next) => {
   const { userId, chatId } = req.body;
-  console.log("userId:", userId);
-  console.log("chatId:", chatId);
+  
 
   const [chat, userTobeRemoved] = await Promise.all([
     Chat.findById(chatId),
@@ -177,8 +170,10 @@ const removeMembers = TryCatch(async (req, res, next) => {
     req,
     ALERT,
     chat.members,
-    `Removed ${userTobeRemoved?.name || "a member"} from the group ${chat.name}`
-  );
+    {
+    message:`Removed ${userTobeRemoved?.name || "a member"} from the group ${chat.name}`,
+    chatId
+});
 
   emmitEvent(req, REFETCH_CHATS, allMembers);
 
@@ -214,8 +209,9 @@ const leaveGroup = TryCatch(async (req, res, next) => {
     req,
     ALERT,
     chat.members,
-    `User ${req.user.name} has left the group ${chat.name}`
-  );
+{    message:`User ${req.user.name} has left the group ${chat.name}`,
+chatId
+}  );
   emmitEvent(req, REFETCH_CHATS, allMembers);
   return res.status(200).json({
     success: true,
@@ -230,8 +226,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
     Chat.findById(chatId),
     User.findById(req.user),
   ]);
-  // console.log("chat:", chat);
-  // console.log("me:", me);
+ 
   if (!chat) {
     return next(new ErrorHandler("Chat Not Found", 404));
   }
@@ -278,7 +273,6 @@ const sendMessage = TryCatch(async (req, res, next) => {
 
 const getChatDetails = TryCatch(async (req, res, next) => {
   if (req.query.populate === "true") {
-    // console.log("populate is true");
     const chat = await Chat.findById(req.params.id)
       .populate("members", "name avatar")
       .lean();
@@ -298,7 +292,6 @@ const getChatDetails = TryCatch(async (req, res, next) => {
       chat,
     });
   } else {
-    // console.log("populate is false");
     const chat = await Chat.findById(req.params.id);
     if (!chat) {
       return next(new ErrorHandler("Chat not found", 404));

@@ -11,7 +11,7 @@ import {
 import React, { memo } from "react";
 import { smapleNotification } from "../../contants/sampleData";
 import { useAcceptFriendReqMutation, useGetNotificationQuery } from "../../redux/api/api.js";
-import { useErrors } from "../../hooks/hook";
+import { useErrors, useMutationHokk } from "../../hooks/hook";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsNotifications } from "../../redux/reducer/msc.js";
 import toast from "react-hot-toast";
@@ -22,24 +22,12 @@ const Notifications = () => {
   const {isLoading,data,error,isError}=useGetNotificationQuery();
   const dispatch=useDispatch();
   // console.log(data.allRequest);
-  const [acceptFrndReq]=useAcceptFriendReqMutation();
+  const [acceptFrndReq]=useMutationHokk(useAcceptFriendReqMutation);
   const friendRequestHandler = async(_id, accept) => {
     // console.log("Request Accepted", id);
-    console.log(_id, accept);
-    try {
-      const res=await acceptFrndReq({requestId:_id,accept});
-      if(res?.data?.success)
-      {
-      console.log(res.data);
-      console.log("use Socket here");
-      toast.success(res.data.message);
-      }else toast.error(res.data.message);
-    } catch (error) {
-      console.log("Error in accepting friend request:", error);
-      toast.error("Something went wrong");
-
-      
-    }
+    // console.log(_id, accept);
+    await acceptFrndReq( `Accepting Friend Request..`,{requestId:_id,accept})
+    
   };
 
   const closeHandler=()=>dispatch(setIsNotifications(false));

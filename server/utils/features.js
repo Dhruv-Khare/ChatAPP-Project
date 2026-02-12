@@ -26,6 +26,7 @@ const sendToken = (res, user, statusCode, message) => {
 
   return res.status(statusCode).cookie("Patrachar", token, cookieOptions).json({
     success: true,
+    user,
     message,
   });
 };

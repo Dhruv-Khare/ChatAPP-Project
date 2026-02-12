@@ -9,7 +9,7 @@ const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${server}/api/v1/`,
   }),
-  tagTypes: ["Chats", "User","Message"],
+  tagTypes: ["Chats", "User","Message","Admin"],
 
   endpoints: (builder) => ({
     myChats: builder.query({
@@ -152,6 +152,15 @@ const api = createApi({
       }),
       invalidatesTags:["Chat"]
     }),
+    getAdminDashboardStats: builder.mutation({
+      query: () => ({
+        url: `admin/stats`,
+        method: "GET",
+        credentials: "include",
+        
+      }),
+      invalidatesTags:["Admin"]
+    }),
   }),
 });
 
@@ -172,6 +181,7 @@ export const {
   useRemoveGroupMemberMutation,
   useAddGroupMemberMutation,
   useDeleteChatMutation,
-  useLeaveGroupMutation
+  useLeaveGroupMutation,
+  useGetAdminDashboardStatsMutation
 } = api;
 

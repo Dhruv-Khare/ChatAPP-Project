@@ -16,10 +16,20 @@ const fileFormate = (url = "") => {
   return "file";
 };
 const TransformImage = (url, width = 100) => {
-  // console.log(url);
-  const newUrl= url.replace("upload",`upload/dpr_auto/w_${width}`);
-  return newUrl;
+  if (
+    typeof url !== "string" ||
+    !url.includes("res.cloudinary.com") ||
+    url.endsWith(".mp3")
+  ) {
+    return url;
+  }
+
+  return url.replace(
+    "/upload/",
+    `/upload/dpr_auto/w_${width}/`
+  );
 };
+
 
 const getLastDays = () => {
   const currenetDate = moment();
