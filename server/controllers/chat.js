@@ -46,9 +46,13 @@ const getMyChats = TryCatch(async (req, res, next) => {
       _id,
       groupChat,
       avatar: groupChat
-        ? members.slice(0, 3).map(({ avatar }) => avatar.url)
-        : [otherMember.avatar.url],
-      name: groupChat ? name : otherMember.name,
+        ? members
+            .filter(Boolean)
+            .slice(0, 3)
+            .map((member) => member?.avatar?.url)
+            .filter(Boolean)
+        : [otherMember?.avatar?.url].filter(Boolean),
+      name: groupChat ? name : otherMember?.name || "Deleted User",
       // members: members.reduce((prev, curr) => {
       //   if (curr._id.toString() !== req.user.toString()) {
       //     prev.push(curr._id);
@@ -56,7 +60,12 @@ const getMyChats = TryCatch(async (req, res, next) => {
       //   return prev;
       // }, []),
       members: members
-        .filter((member) => member._id.toString() !== req.user.toString())
+        .filter(
+          (member) =>
+            member &&
+            member._id &&
+            member._id.toString() !== req.user.toString()
+        )
         .map((member) => member._id),
     };
   });
@@ -77,7 +86,11 @@ const getMyGroups = TryCatch(async (req, res, next) => {
   const groups = chats.map(({ _id, name, members, groupChat }) => ({
     _id,
     groupChat,
-    avatar: members.slice(0, 3).map(({ avatar }) => avatar.url),
+    avatar: members
+      .filter(Boolean)
+      .slice(0, 3)
+      .map((member) => member?.avatar?.url)
+      .filter(Boolean),
     name,
   }));
   return res.status(200).json({
@@ -280,11 +293,11 @@ const getChatDetails = TryCatch(async (req, res, next) => {
       return next(new ErrorHandler("Chat not found", 404));
     }
 
-    chat.members = chat.members.map((member) => {
+    chat.members = chat.members.filter(Boolean).map((member) => {
       return {
         _id: member._id,
         name: member.name,
-        avatar: member.avatar.url,
+        avatar: member.avatar?.url,
       };
     });
     return res.status(200).json({
