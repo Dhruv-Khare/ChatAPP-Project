@@ -6,7 +6,14 @@ const SocketContext=createContext();
 const getSocket=()=>useContext(SocketContext);
 
 const SocketProvider=({children})=> {
-    const socket=useMemo(()=>io("https://15-207-16-76.nip.io",{withCredentials:true}),[]);
+    const socket = useMemo(
+  () =>
+    io("https://15-207-16-76.nip.io", {
+      withCredentials: true,
+      transports: ["websocket"],
+    }),
+  []
+);
     return (
         <SocketContext.Provider value={socket}>
             {children}
