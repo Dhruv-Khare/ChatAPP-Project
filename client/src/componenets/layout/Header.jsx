@@ -14,7 +14,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { orange } from "../../contants/color";
 import {
   Add as AddIcon,
   Menu as MenuIcon,
@@ -79,18 +78,30 @@ const Header = () => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }} height={"4rem"}>
-        <AppBar position="static" sx={{ bgcolor: orange }}>
-          <Toolbar>
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{
+            bgcolor: "rgba(255,255,255,0.92)",
+            color: "text.primary",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <Toolbar sx={{ minHeight: "4rem !important", gap: 1 }}>
             <Typography
               variant="h6"
               sx={{
+                fontWeight: 800,
+                letterSpacing: 0,
                 display: {
                   xs: "none",
                   sm: "block",
                 },
               }}
             >
-              Patrachar{" "}
+              Patrachar
             </Typography>
             <Box
               sx={{
@@ -105,7 +116,7 @@ const Header = () => {
               </IconButton>
             </Box>
             <Box sx={{ flexGrow: "1" }} />
-            <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <IconBtn
                 icon={<SerchIcon />}
                 title="Search"
@@ -185,7 +196,21 @@ const Header = () => {
 const IconBtn = ({ icon, title, onClick, value }) => {
   return (
     <Tooltip title={title}>
-      <IconButton color="inherit " size="large" onClick={onClick}>
+      <IconButton
+        color="inherit"
+        size="large"
+        onClick={onClick}
+        sx={{
+          width: 42,
+          height: 42,
+          color: "text.secondary",
+          borderRadius: 2,
+          "&:hover": {
+            bgcolor: "rgba(37, 99, 235, 0.08)",
+            color: "primary.main",
+          },
+        }}
+      >
         {value ? (
           <Badge badgeContent={value} color="error">
             {icon}

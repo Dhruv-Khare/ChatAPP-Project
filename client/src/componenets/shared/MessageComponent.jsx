@@ -5,13 +5,12 @@ import moment from "moment";
 import { fileFormate } from "../../lib/features";
 import RenderAttachment from "./RenderAttachment";
 import {motion} from "framer-motion"
-import { Opacity } from "@mui/icons-material";
 
 const MessageComponent = ({ message, user }) => {
 
   // console.log(message);
   const { sender, content, attachements = [], createdAt } = message;
-  const sameSender = sender.id|| sender._id == user._id;
+  const sameSender = (sender?._id || sender?.id) === user?._id;
   const timeAgo = moment(createdAt).fromNow();
 
   return (
@@ -20,11 +19,14 @@ const MessageComponent = ({ message, user }) => {
       whileInView={{opacity:1,x:0}}
       style={{
         alignSelf: sameSender ? "flex-end" : "flex-start",
-        backgroundColor: "white",
-        color: "black",
-        padding: "0.5rem",
-        borderRadius: "5px",
+        backgroundColor: sameSender ? "#2563eb" : "white",
+        color: sameSender ? "white" : "#0f172a",
+        padding: "0.65rem 0.85rem",
+        borderRadius: sameSender ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
         width: "fit-content",
+        maxWidth: "min(75%, 34rem)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+        border: sameSender ? "none" : "1px solid rgba(148, 163, 184, 0.24)",
       }}
     >
       {!sameSender && (
@@ -32,7 +34,7 @@ const MessageComponent = ({ message, user }) => {
           {sender.name}
         </Typography>
       )}
-      {content && <Typography>{content}</Typography>}
+      {content && <Typography sx={{ wordBreak: "break-word" }}>{content}</Typography>}
 
       {/*Attatchment */}
       {attachements.length > 0 &&
@@ -47,7 +49,10 @@ const MessageComponent = ({ message, user }) => {
             </Box>
           );
         })}
-      <Typography variant={"caption"} color={"text.secondary"}>
+      <Typography
+        variant={"caption"}
+        sx={{ color: sameSender ? "rgba(255,255,255,0.72)" : "text.secondary" }}
+      >
         {timeAgo}
       </Typography>
     </motion.div>

@@ -1,8 +1,7 @@
 // import React from "react";
-import { IconButton, Skeleton, Stack } from "@mui/material";
+import { Box, IconButton, Skeleton, Stack, Typography } from "@mui/material";
 import Applayout from "../componenets/layout/Applayout.jsx";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { grayColor, orange } from "../contants/color.jsx";
 import {
   AttachFile as AttachFileIcon,
   Send as SendIcon,
@@ -188,16 +187,33 @@ const Chat = ({ chatId, user }) => {
     <Skeleton />
   ) : (
     <Fragment>
+      <Box
+        sx={{
+          height: "4.5rem",
+          px: 2,
+          display: "flex",
+          alignItems: "center",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          bgcolor: "rgba(255,255,255,0.86)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight={800} noWrap>
+          {chatDetails?.data?.chat?.name || "Conversation"}
+        </Typography>
+      </Box>
       <Stack
         ref={containerRef}
         boxSizing={"border-box"}
         padding={"1rem"}
         spacing={"1rem"}
-        bgcolor={grayColor}
-        height={"90%"}
+        height={"calc(90% - 4.5rem)"}
         sx={{
           overflowX: "hidden",
           overflowY: "auto",
+          background:
+            "radial-gradient(circle at top left, rgba(37,99,235,0.08), transparent 32rem), #eef2f7",
         }}
       >
         {/* <ChatHeader /> */}
@@ -219,9 +235,14 @@ const Chat = ({ chatId, user }) => {
         <Stack
           direction={"row"}
           height={"100%"}
-          padding={"1rem"}
+          padding={"0.85rem 1rem"}
           alignItems={"center"}
           position={"relative"}
+          sx={{
+            bgcolor: "rgba(255,255,255,0.9)",
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
         >
           <IconButton
             sx={{
@@ -235,19 +256,20 @@ const Chat = ({ chatId, user }) => {
             <AttachFileIcon />
           </IconButton>
           <InputBox
-            placeholder="type massege here..."
+            placeholder="Type a message..."
             value={message}
             onChange={messageOnChangeHandler}
           />
           <IconButton
             type="submit"
             sx={{
-              bgcolor: orange,
+              bgcolor: "primary.main",
               color: "white",
               marginLeft: "1rem",
-              padding: "0.5rem ",
+              width: 44,
+              height: 44,
               "&:hover": {
-                bgcolor: "error.dark",
+                bgcolor: "primary.dark",
               },
             }}
           >

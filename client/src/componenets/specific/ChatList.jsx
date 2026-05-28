@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 // import React from "react";
 import ChatItem from "../shared/ChatItem";
 // import ChatItem from "../shared/ChatItem";
@@ -17,7 +17,21 @@ const ChatList = ({
   handleDeleteChat,
 }) => {
   return (
-    <Stack width={w} direction={"column"} overflow={"auto"} height={"100%"}>
+    <Stack
+      width={w}
+      direction={"column"}
+      overflow={"auto"}
+      height={"100%"}
+      sx={{ p: 1, gap: 0.5 }}
+    >
+      <Box sx={{ px: 1.25, py: 1.5 }}>
+        <Typography variant="overline" color="text.secondary" fontWeight={800}>
+          Messages
+        </Typography>
+        <Typography variant="h6" fontWeight={800}>
+          Chats
+        </Typography>
+      </Box>
       {chats?.map((data, index) => {
         const { avatar, _id, name, groupChat, members } = data;
         // const sameSender = chatID === _id;

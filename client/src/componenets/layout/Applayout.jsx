@@ -1,7 +1,7 @@
 // import React from "react";
 import Header from "./Header";
 import Title from "../shared/Title";
-import { Drawer, Grid, Skeleton } from "@mui/material";
+import { Box, Drawer, Grid, Skeleton } from "@mui/material";
 import ChatList from "../specific/ChatList";
 // import { sampleChats } from "../../contants/sampleData";
 import { useNavigate, useParams } from "react-router-dom";
@@ -112,13 +112,24 @@ const AppLayout = () => (WrappedComponent) => {
             />
           </Drawer>
         )}
-        <Grid container height={"calc(100vh - 4rem)"}>
+        <Grid
+          container
+          height={"calc(100vh - 4rem)"}
+          sx={{
+            bgcolor: "background.default",
+          }}
+        >
           <Grid
             item
             sm={4}
             md={3}
             height={"100%"}
-            sx={{ display: { xs: "none", sm: "block" } }}
+            sx={{
+              display: { xs: "none", sm: "block" },
+              borderRight: "1px solid",
+              borderColor: "divider",
+              bgcolor: "background.paper",
+            }}
           >
             {isLoading ? (
               <Skeleton />
@@ -133,7 +144,9 @@ const AppLayout = () => (WrappedComponent) => {
             )}
           </Grid>
           <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
-            <WrappedComponent {...props} chatId={chatId} user={user} />
+            <Box height="100%" sx={{ bgcolor: "#eef2f7" }}>
+              <WrappedComponent {...props} chatId={chatId} user={user} />
+            </Box>
           </Grid>
           <Grid
             item
@@ -142,8 +155,11 @@ const AppLayout = () => (WrappedComponent) => {
             height={"100%"}
             sx={{
               display: { xs: "none", md: "block" },
-              padding: "2rem",
-              bgcolor: "rgba(0,0,0,0.85)",
+              padding: "1.25rem",
+              bgcolor: "background.paper",
+              borderLeft: "1px solid",
+              borderColor: "divider",
+              overflowY: "auto",
             }}
           >
             <Profile user={user} />

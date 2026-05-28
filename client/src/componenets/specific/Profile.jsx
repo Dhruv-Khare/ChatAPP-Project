@@ -58,7 +58,10 @@
 // export default Profile;
 import {
   Avatar,
+  Box,
   Dialog,
+  Divider,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -69,7 +72,7 @@ import {
   Face as FaceIcon,
   AlternateEmail as UserNameIcon,
   CalendarMonth as CalenderIcon,
-  Close as CloseIcon,
+  Info as InfoIcon,
 } from "@mui/icons-material";
 
 import moment from "moment";
@@ -85,46 +88,91 @@ const Profile = ({ user }) => {
     <>
       <Stack
         direction={"column"}
-        spacing={"2rem"}
+        spacing={2}
         alignItems={"center"}
+        sx={{ height: "100%" }}
       >
-        <Avatar
-          src={imageUrl}
-          alt={user?.name}
-          onClick={() => setOpen(true)}
+        <Paper
+          elevation={0}
           sx={{
-            width: 200,
-            height: 200,
-            objectFit: "cover",
-            marginBottom: "1rem",
-            border: "5px solid white",
-            cursor: "pointer",
-            transition: "0.3s",
-            "&:hover": {
-              transform: "scale(1.03)",
-            },
+            width: "100%",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
           }}
-        />
+        >
+          <Box
+            sx={{
+              height: 104,
+              background:
+                "linear-gradient(135deg, #2563eb 0%, #0f766e 100%)",
+            }}
+          />
+          <Stack alignItems="center" sx={{ px: 2, pb: 2, mt: -7 }}>
+            <Avatar
+              src={imageUrl}
+              alt={user?.name}
+              onClick={() => setOpen(true)}
+              sx={{
+                width: 132,
+                height: 132,
+                objectFit: "cover",
+                border: "5px solid white",
+                cursor: "pointer",
+                boxShadow: "0 16px 40px rgba(15, 23, 42, 0.18)",
+                transition: "0.2s ease",
+                "&:hover": {
+                  transform: "scale(1.03)",
+                },
+              }}
+            />
+            <Typography variant="h6" fontWeight={800} mt={1.5} noWrap>
+              {user?.name || "User"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" noWrap>
+              @{user?.userName || "username"}
+            </Typography>
+          </Stack>
+        </Paper>
 
-        <ProfileCard heading={"BIO"} text={user?.bio} />
+        <Paper
+          elevation={0}
+          sx={{
+            width: "100%",
+            p: 2,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Stack spacing={1.75}>
+            <ProfileCard
+              heading={"Bio"}
+              text={user?.bio || "No bio added yet"}
+              Icon={<InfoIcon />}
+            />
 
-        <ProfileCard
-          heading={"UserName"}
-          text={user?.userName}
-          Icon={<UserNameIcon />}
-        />
+            <Divider />
 
-        <ProfileCard
-          heading={"Name"}
-          text={user?.name}
-          Icon={<FaceIcon />}
-        />
+            <ProfileCard
+              heading={"Username"}
+              text={user?.userName}
+              Icon={<UserNameIcon />}
+            />
 
-        <ProfileCard
-          heading={"Joined"}
-          text={moment(user?.createdAt).fromNow()}
-          Icon={<CalenderIcon />}
-        />
+            <ProfileCard
+              heading={"Name"}
+              text={user?.name}
+              Icon={<FaceIcon />}
+            />
+
+            <ProfileCard
+              heading={"Joined"}
+              text={user?.createdAt ? moment(user?.createdAt).fromNow() : "Recently"}
+              Icon={<CalenderIcon />}
+            />
+          </Stack>
+        </Paper>
       </Stack>
 
       {/* Fullscreen Image Dialog */}
@@ -161,20 +209,36 @@ const ProfileCard = ({ text, Icon, heading }) => {
     <Stack
       direction={"row"}
       alignItems={"center"}
-      spacing={"1rem"}
-      color={"white"}
-      textAlign={"center"}
+      spacing={1.5}
+      textAlign={"left"}
+      sx={{ width: "100%" }}
     >
-      {Icon && Icon}
+      {Icon && (
+        <Box
+          sx={{
+            width: 38,
+            height: 38,
+            flex: "0 0 auto",
+            display: "grid",
+            placeItems: "center",
+            borderRadius: 2,
+            bgcolor: "rgba(37, 99, 235, 0.08)",
+            color: "primary.main",
+          }}
+        >
+          {Icon}
+        </Box>
+      )}
 
-      <Stack>
-        <Typography variant="body1">
+      <Stack minWidth={0}>
+        <Typography variant="body1" fontWeight={700} noWrap>
           {text}
         </Typography>
 
         <Typography
-          color={"gray"}
+          color={"text.secondary"}
           variant="caption"
+          fontWeight={700}
         >
           {heading}
         </Typography>

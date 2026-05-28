@@ -31,10 +31,12 @@ const ChatItem = ({
           display: "flex",
           alignItems: "center",
           gap: "1rem",
-          padding: "1rem",
-          backgroundColor: sameSender ? "black" : "unset",
-          color: sameSender ? "white" : "unset",
+          padding: "0.85rem",
+          backgroundColor: sameSender ? "#e8f0ff" : "transparent",
+          color: "#0f172a",
+          borderRadius: "8px",
           position: "relative",
+          border: sameSender ? "1px solid #bfdbfe" : "1px solid transparent",
         }}
       >
         {/* <Stack direction="row" spacing={1}>
@@ -46,10 +48,12 @@ const ChatItem = ({
         </Stack> */}
         <AvatarCard avatar={avatar} />
 
-        <Stack>
-          <Typography>{name}</Typography>
+        <Stack minWidth={0}>
+          <Typography fontWeight={700} noWrap>{name}</Typography>
           {newMessageAlert && (
-            <Typography>{newMessageAlert.count} New Messages</Typography>
+            <Typography variant="caption" color="primary.main" fontWeight={700}>
+              {newMessageAlert.count} new message{newMessageAlert.count > 1 ? "s" : ""}
+            </Typography>
           )}
         </Stack>
         {isOnline && (
@@ -58,7 +62,8 @@ const ChatItem = ({
               width: 10,
               height: 10,
               borderRadius: "50%",
-              backgroundColor: "green",
+              backgroundColor: "#22c55e",
+              boxShadow: "0 0 0 3px white",
               position: "absolute",
               top: "50%",
               right: "1rem",

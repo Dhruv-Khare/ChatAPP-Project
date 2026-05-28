@@ -16,10 +16,10 @@ export const VisuallyHiddenInput = styled("input")({
 
 export const Link = styled(LinkCommponent)`
   text-decoration: none;
-  color: black;
-  padding: 1rem;
+  color: inherit;
+  padding: 0.25rem 0.5rem;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: transparent;
   }
 `;
 
@@ -29,8 +29,16 @@ export const InputBox = styled("input")`
   border: none;
   outline: none;
   padding: 0 3rem;
-  border-radius: 1.3rem;
-  background-color: ${grayColor};
+  border-radius: 1rem;
+  background-color: white;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.35);
+  color: #0f172a;
+  font-size: 0.95rem;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+
+  &:focus {
+    box-shadow: inset 0 0 0 2px #2563eb;
+  }
 `;
 
 export const SearchField = styled("input")`

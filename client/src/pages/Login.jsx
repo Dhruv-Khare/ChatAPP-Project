@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Button,
   Container,
   IconButton,
@@ -101,34 +102,47 @@ const Login = () => {
     }
   };
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        minHeight: "100vh",
         background:
-          "linear-gradient(to bottom,rgb(16, 54, 73),rgb(182, 155, 155))",
+          "radial-gradient(circle at 15% 15%, rgba(37,99,235,0.18), transparent 28rem), radial-gradient(circle at 85% 15%, rgba(15,118,110,0.14), transparent 26rem), #f8fafc",
       }}
     >
       <Container
         component="main"
-        maxWidth="xs"
+        maxWidth="sm"
         sx={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          py: 4,
         }}
       >
         <Paper
-          elevation={3}
+          elevation={0}
           sx={{
-            padding: 4,
+            width: "100%",
+            maxWidth: 440,
+            padding: { xs: 3, sm: 4 },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "0 24px 70px rgba(15, 23, 42, 0.12)",
           }}
         >
+          <Typography variant="h4" fontWeight={900} color="primary.main">
+            Patrachar
+          </Typography>
+          <Typography color="text.secondary" mt={0.5} mb={3}>
+            {isLogin ? "Welcome back to your conversations" : "Create your chat profile"}
+          </Typography>
           {isLogin ? (
             <>
-              <Typography variant="h5"> LogIn</Typography>
+              <Typography variant="h5" fontWeight={800}>Log in</Typography>
               <form
                 style={{
                   width: "100%",
@@ -146,14 +160,14 @@ const Login = () => {
                   onChange={userName.changeHandler}
                 />
                 {userName.error && (
-                  <Typography color="error" variant=" caption ">
+                  <Typography color="error" variant="caption">
                     {userName.error}
                   </Typography>
                 )}
                 <TextField
                   required
                   fullWidth
-                  label="PassWord"
+                  label="Password"
                   type="password"
                   margin="normal"
                   variant="outlined"
@@ -161,21 +175,20 @@ const Login = () => {
                   onChange={password.changeHandler}
                 />
                 {password.error && (
-                  <Typography color="error" variant=" caption ">
+                  <Typography color="error" variant="caption">
                     {password.error}
                   </Typography>
                 )}
                 <Button
                   sx={{ marginTop: "1rem" }}
                   variant="contained"
-                  color="primary"
                   type="submit"
                   fullWidth
                   disabled={isLoading}
                 >
-                  Login{" "}
+                  Log in
                 </Button>
-                <Typography textAlign={"center"} m={"1rem"}>
+                <Typography textAlign={"center"} m={"1rem"} color="text.secondary">
                   Or
                 </Typography>
                 <Button
@@ -187,13 +200,13 @@ const Login = () => {
                   onClick={handleToggle}
                   disabled={isLoading}
                 >
-                  Sign Up Instead{" "}
+                  Sign up instead
                 </Button>
               </form>
             </>
           ) : (
             <>
-              <Typography variant="h5"> SignUp</Typography>
+              <Typography variant="h5" fontWeight={800}>Sign up</Typography>
               <form
                 style={{
                   width: "100%",
@@ -208,6 +221,8 @@ const Login = () => {
                       width: "10rem",
                       height: "10rem",
                       objectFit: "contain",
+                      border: "4px solid white",
+                      boxShadow: "0 12px 36px rgba(15, 23, 42, 0.16)",
                     }}
                     src={avatar.preview}
                   />
@@ -217,8 +232,9 @@ const Login = () => {
                       position: "absolute",
                       bottom: "0%",
                       right: "0%",
-                      bgcolor: "rgb( 0, 0, 0, 0.5)",
-                      ":hover": { bgcolor: "rgb( 0, 0, 0, 0.7)" },
+                      bgcolor: "primary.main",
+                      color: "white",
+                      ":hover": { bgcolor: "primary.dark" },
                     }}
                     component="label"
                   >
@@ -237,7 +253,7 @@ const Login = () => {
                     width={"fit-content"}
                     display={"block"}
                     color="error"
-                    variant=" caption "
+                    variant="caption"
                   >
                     {avatar.error}
                   </Typography>
@@ -263,21 +279,21 @@ const Login = () => {
                 <TextField
                   required
                   fullWidth
-                  label="UserName"
+                  label="Username"
                   margin="normal"
                   variant="outlined"
                   value={userName.value}
                   onChange={userName.changeHandler}
                 />
                 {userName.error && (
-                  <Typography color="error" variant=" caption ">
+                  <Typography color="error" variant="caption">
                     {userName.error}
                   </Typography>
                 )}
                 <TextField
                   required
                   fullWidth
-                  label="PassWord"
+                  label="Password"
                   type="password"
                   margin="normal"
                   variant="outlined"
@@ -285,21 +301,20 @@ const Login = () => {
                   onChange={password.changeHandler}
                 />
                 {password.error && (
-                  <Typography color="error" variant=" caption ">
+                  <Typography color="error" variant="caption">
                     {password.error}
                   </Typography>
                 )}
                 <Button
                   sx={{ marginTop: "1rem" }}
                   variant="contained"
-                  color="primary"
                   type="submit"
                   fullWidth
                   disabled={isLoading}
                 >
-                  SignUp{" "}
+                  Sign up
                 </Button>
-                <Typography textAlign={"center"} m={"1rem"}>
+                <Typography textAlign={"center"} m={"1rem"} color="text.secondary">
                   Or
                 </Typography>
                 <Button
@@ -311,14 +326,14 @@ const Login = () => {
                   onClick={handleToggle}
                   disabled={isLoading}
                 >
-                  Login Instead{" "}
+                  Log in instead
                 </Button>
               </form>
             </>
           )}
         </Paper>
       </Container>
-    </div>
+    </Box>
   );
 };
 
