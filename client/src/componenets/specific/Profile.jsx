@@ -12,7 +12,7 @@ const Profile = ({user}) => {
     <Stack direction={"column"} spacing={"2rem"} alignItems={"center"}>
       <Avatar src={TransformImage(user?.avatar?.url)} alt={user?.name}
         sx={{
-          width: 200,
+          width: 200, 
           height: 200,
           objectFit: "contain",
           marginBottom: "1rem",

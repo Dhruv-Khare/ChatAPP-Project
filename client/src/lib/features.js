@@ -15,7 +15,7 @@ const fileFormate = (url = "") => {
 
   return "file";
 };
-const TransformImage = (url, width = 100) => {
+const TransformImage = (url, width = 300) => {
   if (
     typeof url !== "string" ||
     !url.includes("res.cloudinary.com") ||
@@ -26,7 +26,7 @@ const TransformImage = (url, width = 100) => {
 
   return url.replace(
     "/upload/",
-    `/upload/dpr_auto/w_${width}/`
+    `/upload/q_auto/f_auto/dpr_auto,w_${width}/`
   );
 };
 
