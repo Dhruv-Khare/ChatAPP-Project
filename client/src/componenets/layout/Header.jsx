@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import { server } from "../../contants/config.js";
@@ -39,6 +39,7 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroups"));
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isSearch, isNotifications,isNewGroup } = useSelector((state) => state.msc);
   const { notificationCount } = useSelector((state) => state.chat);
   // const [isNewGroup, setIsNewGroup] = useState(false);
@@ -82,14 +83,43 @@ const Header = () => {
           position="static"
           elevation={0}
           sx={{
-            bgcolor: "rgba(255,255,255,0.92)",
+            bgcolor: "rgba(255,255,255,0.96)",
             color: "text.primary",
             borderBottom: "1px solid",
             borderColor: "divider",
             backdropFilter: "blur(12px)",
+            boxShadow: "0 8px 30px rgba(15, 23, 42, 0.06)",
           }}
         >
-          <Toolbar sx={{ minHeight: "4rem !important", gap: 1 }}>
+          <Toolbar
+            sx={{
+              minHeight: "4rem !important",
+              gap: 1,
+              px: { xs: 1.25, sm: 2.5 },
+            }}
+          >
+            <Box
+              sx={{
+                width: { sm: "calc(33.333% - 1rem)", md: "calc(25% - 1rem)" },
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 2,
+                  display: { xs: "none", sm: "grid" },
+                  placeItems: "center",
+                  bgcolor: "primary.main",
+                  color: "white",
+                  fontWeight: 900,
+                }}
+              >
+                P
+              </Box>
             <Typography
               variant="h6"
               sx={{
@@ -103,6 +133,7 @@ const Header = () => {
             >
               Patrachar
             </Typography>
+            </Box>
             <Box
               sx={{
                 display: {
@@ -115,8 +146,19 @@ const Header = () => {
                 <MenuIcon />
               </IconButton>
             </Box>
-            <Box sx={{ flexGrow: "1" }} />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Box sx={{ flexGrow: 1 }} />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 0.25, sm: 0.75 },
+                p: 0.5,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+                bgcolor: "rgba(248,250,252,0.86)",
+              }}
+            >
               <IconBtn
                 icon={<SerchIcon />}
                 title="Search"
@@ -149,6 +191,7 @@ const Header = () => {
                 icon={<GroupIcon />}
                 title="manage Groups"
                 onClick={navigateToGroups}
+                active={location.pathname === "/groups"}
               />
               <IconBtn
                 icon={<NotificationsIcon />}
@@ -193,7 +236,7 @@ const Header = () => {
     </>
   );
 };
-const IconBtn = ({ icon, title, onClick, value }) => {
+const IconBtn = ({ icon, title, onClick, value, active = false }) => {
   return (
     <Tooltip title={title}>
       <IconButton
@@ -203,8 +246,9 @@ const IconBtn = ({ icon, title, onClick, value }) => {
         sx={{
           width: 42,
           height: 42,
-          color: "text.secondary",
+          color: active ? "primary.main" : "text.secondary",
           borderRadius: 2,
+          bgcolor: active ? "rgba(37, 99, 235, 0.1)" : "transparent",
           "&:hover": {
             bgcolor: "rgba(37, 99, 235, 0.08)",
             color: "primary.main",

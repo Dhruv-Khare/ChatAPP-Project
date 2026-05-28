@@ -90,6 +90,10 @@ const AppLayout = () => (WrappedComponent) => {
 
     useSocketEvents(socket, eventArr);
 
+    const selectedChat = data?.chats?.find((chat) => chat._id === chatId);
+    const friendAvatar = !selectedChat?.groupChat ? selectedChat?.avatar?.[0] : null;
+    const friendName = !selectedChat?.groupChat ? selectedChat?.name : null;
+
     return (
       <>
         <Title />
@@ -162,7 +166,11 @@ const AppLayout = () => (WrappedComponent) => {
               overflowY: "auto",
             }}
           >
-            <Profile user={user} />
+            <Profile
+              user={user}
+              friendAvatar={friendAvatar}
+              friendName={friendName}
+            />
           </Grid>
         </Grid>
       </>

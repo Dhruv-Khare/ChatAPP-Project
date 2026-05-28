@@ -79,10 +79,12 @@ import moment from "moment";
 
 import { TransformImage } from "../../lib/features";
 
-const Profile = ({ user }) => {
+const Profile = ({ user, friendAvatar, friendName }) => {
   const [open, setOpen] = useState(false);
 
-  const imageUrl = TransformImage(user?.avatar?.url, 500);
+  const isFriendPicture = Boolean(friendAvatar);
+  const imageUrl = TransformImage(friendAvatar || user?.avatar?.url, 500);
+  const displayName = isFriendPicture ? friendName : user?.name;
 
   return (
     <>
@@ -102,6 +104,14 @@ const Profile = ({ user }) => {
             bgcolor: "background.paper",
           }}
         >
+          <Typography
+            variant="overline"
+            fontWeight={800}
+            color="text.secondary"
+            sx={{ display: "block", px: 2, pt: 1.5 }}
+          >
+            {isFriendPicture ? "Friend Picture" : "My Profile"}
+          </Typography>
           <Box
             sx={{
               height: 104,
@@ -112,8 +122,8 @@ const Profile = ({ user }) => {
           <Stack alignItems="center" sx={{ px: 2, pb: 2, mt: -7 }}>
             <Avatar
               src={imageUrl}
-              alt={user?.name}
-              onClick={() => setOpen(true)}
+              alt={displayName}
+              onClick={() => imageUrl && setOpen(true)}
               sx={{
                 width: 132,
                 height: 132,
@@ -128,51 +138,60 @@ const Profile = ({ user }) => {
               }}
             />
             <Typography variant="h6" fontWeight={800} mt={1.5} noWrap>
-              {user?.name || "User"}
+              {displayName || "User"}
             </Typography>
-            <Typography variant="body2" color="text.secondary" noWrap>
-              @{user?.userName || "username"}
-            </Typography>
+            {isFriendPicture && (
+              <Typography variant="body2" color="text.secondary">
+                Click picture to view
+              </Typography>
+            )}
+            {!isFriendPicture && (
+              <Typography variant="body2" color="text.secondary" noWrap>
+                @{user?.userName || "username"}
+              </Typography>
+            )}
           </Stack>
         </Paper>
 
-        <Paper
-          elevation={0}
-          sx={{
-            width: "100%",
-            p: 2,
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Stack spacing={1.75}>
-            <ProfileCard
-              heading={"Bio"}
-              text={user?.bio || "No bio added yet"}
-              Icon={<InfoIcon />}
-            />
+        {!isFriendPicture && (
+          <Paper
+            elevation={0}
+            sx={{
+              width: "100%",
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Stack spacing={1.75}>
+              <ProfileCard
+                heading={"Bio"}
+                text={user?.bio || "No bio added yet"}
+                Icon={<InfoIcon />}
+              />
 
-            <Divider />
+              <Divider />
 
-            <ProfileCard
-              heading={"Username"}
-              text={user?.userName}
-              Icon={<UserNameIcon />}
-            />
+              <ProfileCard
+                heading={"Username"}
+                text={user?.userName}
+                Icon={<UserNameIcon />}
+              />
 
-            <ProfileCard
-              heading={"Name"}
-              text={user?.name}
-              Icon={<FaceIcon />}
-            />
+              <ProfileCard
+                heading={"Name"}
+                text={user?.name}
+                Icon={<FaceIcon />}
+              />
 
-            <ProfileCard
-              heading={"Joined"}
-              text={user?.createdAt ? moment(user?.createdAt).fromNow() : "Recently"}
-              Icon={<CalenderIcon />}
-            />
-          </Stack>
-        </Paper>
+              <ProfileCard
+                heading={"Joined"}
+                text={user?.createdAt ? moment(user?.createdAt).fromNow() : "Recently"}
+                Icon={<CalenderIcon />}
+              />
+            </Stack>
+          </Paper>
+        )}
       </Stack>
 
       {/* Fullscreen Image Dialog */}
