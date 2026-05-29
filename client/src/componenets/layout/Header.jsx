@@ -1,6 +1,5 @@
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import axios from "axios";
 import { server } from "../../contants/config.js";
 
@@ -21,6 +20,8 @@ import {
   Search as SerchIcon,
   Logout as LogOutIcon,
   Notifications as NotificationsIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { userNotExists } from "../../redux/reducer/auth";
@@ -32,6 +33,7 @@ import {
   setIsSearch,
 } from "../../redux/reducer/msc.js";
 import { resetNotificationCount } from "../../redux/reducer/chat.js";
+import { useThemeMode } from "../../context/ThemeModeContext.jsx";
 
 const SearchDialog = lazy(() => import("../specific/Search"));
 const NotificationsDialog = lazy(() => import("../specific/Notifications"));
@@ -42,6 +44,7 @@ const Header = () => {
   const location = useLocation();
   const { isSearch, isNotifications,isNewGroup } = useSelector((state) => state.msc);
   const { notificationCount } = useSelector((state) => state.chat);
+  const { mode, toggleMode } = useThemeMode();
   // const [isNewGroup, setIsNewGroup] = useState(false);
   // const [isNotification, setIsNotification] = useState(false);
 
@@ -83,12 +86,15 @@ const Header = () => {
           position="static"
           elevation={0}
           sx={{
-            bgcolor: "rgba(255,255,255,0.96)",
+            bgcolor: "background.paper",
             color: "text.primary",
             borderBottom: "1px solid",
             borderColor: "divider",
             backdropFilter: "blur(12px)",
-            boxShadow: "0 8px 30px rgba(15, 23, 42, 0.06)",
+            boxShadow: (theme) =>
+              theme.palette.mode === "light"
+                ? "0 8px 30px rgba(15, 23, 42, 0.06)"
+                : "0 8px 30px rgba(0, 0, 0, 0.24)",
           }}
         >
           <Toolbar
@@ -156,7 +162,7 @@ const Header = () => {
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 2,
-                bgcolor: "rgba(248,250,252,0.86)",
+                bgcolor: "background.default",
               }}
             >
               <IconBtn
@@ -209,6 +215,11 @@ const Header = () => {
                 </IconButton>
               </Tooltip> */}
               <IconBtn
+                icon={mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+                title={mode === "light" ? "Dark mode" : "Light mode"}
+                onClick={toggleMode}
+              />
+              <IconBtn
                 icon={<LogOutIcon />}
                 title="LogOut"
                 onClick={logoutHandler}
@@ -248,9 +259,9 @@ const IconBtn = ({ icon, title, onClick, value, active = false }) => {
           height: 42,
           color: active ? "primary.main" : "text.secondary",
           borderRadius: 2,
-          bgcolor: active ? "rgba(37, 99, 235, 0.1)" : "transparent",
+          bgcolor: active ? "action.selected" : "transparent",
           "&:hover": {
-            bgcolor: "rgba(37, 99, 235, 0.08)",
+            bgcolor: "action.hover",
             color: "primary.main",
           },
         }}

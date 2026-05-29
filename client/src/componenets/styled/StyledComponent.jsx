@@ -1,4 +1,4 @@
-import { keyframes, Skeleton, styled } from "@mui/material";
+import { alpha, keyframes, Skeleton, styled } from "@mui/material";
 import { Link as LinkCommponent } from "react-router-dom";
 import { grayColor } from "../../contants/color";
 
@@ -23,23 +23,27 @@ export const Link = styled(LinkCommponent)`
   }
 `;
 
-export const InputBox = styled("input")`
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-  padding: 0 3rem;
-  border-radius: 1rem;
-  background-color: white;
-  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.35);
-  color: #0f172a;
-  font-size: 0.95rem;
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+export const InputBox = styled("input")(({ theme }) => ({
+  width: "100%",
+  height: "100%",
+  border: "none",
+  outline: "none",
+  padding: "0 3rem",
+  borderRadius: "1rem",
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: `inset 0 0 0 1px ${alpha(theme.palette.text.secondary, 0.35)}`,
+  color: theme.palette.text.primary,
+  fontSize: "0.95rem",
+  transition: "box-shadow 0.2s ease, background-color 0.2s ease",
 
-  &:focus {
-    box-shadow: inset 0 0 0 2px #2563eb;
-  }
-`;
+  "&::placeholder": {
+    color: theme.palette.text.secondary,
+  },
+
+  "&:focus": {
+    boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+  },
+}));
 
 export const SearchField = styled("input")`
   padding: 1rem 2rem;

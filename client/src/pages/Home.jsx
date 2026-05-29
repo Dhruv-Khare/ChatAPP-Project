@@ -24,7 +24,7 @@ const Home = () => {
           textAlign: "center",
           border: "1px solid",
           borderColor: "divider",
-          bgcolor: "rgba(255,255,255,0.78)",
+          bgcolor: "background.paper",
         }}
       >
         <Box

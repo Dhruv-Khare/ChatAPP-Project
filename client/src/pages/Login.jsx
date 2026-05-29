@@ -10,7 +10,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
+import {
+  CameraAlt as CameraAltIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
+} from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../componenets/styled/StyledComponent";
 import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
 import { userNameValidator } from "../utils/Validator";
@@ -19,10 +23,12 @@ import toast from "react-hot-toast";
 import { userExists } from "../redux/reducer/auth";
 import { server } from "../contants/config";
 import axios from "axios";
+import { useThemeMode } from "../context/ThemeModeContext";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const { mode, toggleMode } = useThemeMode();
 
   const name = useInputValidation("");
   const bio = useInputValidation("");
@@ -105,10 +111,32 @@ const Login = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at 15% 15%, rgba(37,99,235,0.18), transparent 28rem), radial-gradient(circle at 85% 15%, rgba(15,118,110,0.14), transparent 26rem), #f8fafc",
+        position: "relative",
+        background: (theme) =>
+          theme.palette.mode === "light"
+            ? "radial-gradient(circle at 15% 15%, rgba(37,99,235,0.18), transparent 28rem), radial-gradient(circle at 85% 15%, rgba(15,118,110,0.14), transparent 26rem), #f8fafc"
+            : "radial-gradient(circle at 15% 15%, rgba(96,165,250,0.18), transparent 28rem), radial-gradient(circle at 85% 15%, rgba(45,212,191,0.12), transparent 26rem), #0f172a",
       }}
     >
+      <IconButton
+        onClick={toggleMode}
+        aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          bgcolor: "background.paper",
+          color: "text.secondary",
+          border: "1px solid",
+          borderColor: "divider",
+          "&:hover": {
+            bgcolor: "action.hover",
+            color: "primary.main",
+          },
+        }}
+      >
+        {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+      </IconButton>
       <Container
         component="main"
         maxWidth="sm"
@@ -131,7 +159,10 @@ const Login = () => {
             alignItems: "center",
             border: "1px solid",
             borderColor: "divider",
-            boxShadow: "0 24px 70px rgba(15, 23, 42, 0.12)",
+            boxShadow: (theme) =>
+              theme.palette.mode === "light"
+                ? "0 24px 70px rgba(15, 23, 42, 0.12)"
+                : "0 24px 70px rgba(0, 0, 0, 0.36)",
           }}
         >
           <Typography variant="h4" fontWeight={900} color="primary.main">
@@ -221,7 +252,8 @@ const Login = () => {
                       width: "10rem",
                       height: "10rem",
                       objectFit: "contain",
-                      border: "4px solid white",
+                      border: "4px solid",
+                      borderColor: "background.paper",
                       boxShadow: "0 12px 36px rgba(15, 23, 42, 0.16)",
                     }}
                     src={avatar.preview}

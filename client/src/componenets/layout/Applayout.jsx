@@ -148,7 +148,7 @@ const AppLayout = () => (WrappedComponent) => {
             )}
           </Grid>
           <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
-            <Box height="100%" sx={{ bgcolor: "#eef2f7" }}>
+            <Box height="100%" sx={{ bgcolor: "background.default" }}>
               <WrappedComponent {...props} chatId={chatId} user={user} />
             </Box>
           </Grid>

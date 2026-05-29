@@ -195,7 +195,7 @@ const Chat = ({ chatId, user }) => {
           alignItems: "center",
           borderBottom: "1px solid",
           borderColor: "divider",
-          bgcolor: "rgba(255,255,255,0.86)",
+          bgcolor: "background.paper",
           backdropFilter: "blur(10px)",
         }}
       >
@@ -212,8 +212,10 @@ const Chat = ({ chatId, user }) => {
         sx={{
           overflowX: "hidden",
           overflowY: "auto",
-          background:
-            "radial-gradient(circle at top left, rgba(37,99,235,0.08), transparent 32rem), #eef2f7",
+          background: (theme) =>
+            theme.palette.mode === "light"
+              ? "radial-gradient(circle at top left, rgba(37,99,235,0.08), transparent 32rem), #eef2f7"
+              : "radial-gradient(circle at top left, rgba(96,165,250,0.16), transparent 32rem), #0f172a",
         }}
       >
         {/* <ChatHeader /> */}
@@ -239,7 +241,7 @@ const Chat = ({ chatId, user }) => {
           alignItems={"center"}
           position={"relative"}
           sx={{
-            bgcolor: "rgba(255,255,255,0.9)",
+            bgcolor: "background.paper",
             borderTop: "1px solid",
             borderColor: "divider",
           }}
