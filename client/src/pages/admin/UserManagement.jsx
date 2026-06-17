@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "../../componenets/layout/AdminLayout";
 import Table from "../../componenets/shared/Table";
 import { Avatar, Skeleton } from "@mui/material";
-import { dashboardData } from "../../contants/sampleData";
 import { TransformImage } from "../../lib/features";
 import { useFetchData } from "6pp";
 import { server } from "../../contants/config";
 import { useErrors } from "../../hooks/hook";
-import { LayoutLoader } from "../../componenets/layout/Loaders";
 const columns = [
   {
     field: "id",
@@ -55,7 +53,6 @@ const UserManagement = () => {
     key: "users-stats",
     credentials: "include",
   });
-  console.log("data", data);
   useErrors([
     {
       isError: error,

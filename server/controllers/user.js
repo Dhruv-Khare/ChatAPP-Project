@@ -85,7 +85,7 @@ const searchUser = TryCatch(async (req, res) => {
   const users = allUsersExceptMeAndMyFriends.map(({ _id, name, avatar }) => ({
     _id,
     name,
-    avatar: avatar.url,
+    avatar: avatar?.url,
   }));
 
  
@@ -172,7 +172,7 @@ const getAllNotifications=TryCatch(async(req,res)=>{
     sender:{
       _id:sender._id,
       name:sender.name,
-      avatar:sender.avatar.url,
+      avatar:sender.avatar?.url,
     },
   }));
 
@@ -206,8 +206,11 @@ const getMyFriends=TryCatch(async(req,res)=>{
 
   if(chatId){
     const chat=await Chat.findById(chatId);
+    if(!chat) return next(new ErrorHandler("Chat not found",404));
 
-    const availableFriends= friends.filter(friend=> !chat.members.includes(friend._id))
+    const availableFriends= friends.filter(friend=> !chat.members.some(
+      (member) => member.toString() === friend._id.toString()
+    ))
 
     return res.status(200).json({
       success:true,

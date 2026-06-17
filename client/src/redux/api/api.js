@@ -1,11 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { server } from "../../contants/config.js";
-import { CardMembership } from "@mui/icons-material";
-// import { chatIdValidator } from "../../../../server/lib/validators.js";
-const chatIdValidator = () => [
-  param("id", "Please enter chatId").notEmpty(),
-];
+
 const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
@@ -84,7 +80,7 @@ const api = createApi({
     availableFriends: builder.query({
       query: (chatId) => {
         let url=`user/friends`;
-        if(chatId) url+=`chatId=${chatId}`;
+        if(chatId) url+=`?chatId=${chatId}`;
 
         return {
           url,

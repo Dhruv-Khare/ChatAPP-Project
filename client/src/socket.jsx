@@ -1,14 +1,12 @@
-import { Children, createContext, useContext, useMemo } from "react";
+import { useMemo } from "react";
 import io from "socket.io-client";
-
-const SocketContext=createContext();
-
-const getSocket=()=>useContext(SocketContext);
+import { server } from "./contants/config";
+import { SocketContext } from "./socketContext";
 
 const SocketProvider=({children})=> {
     const socket = useMemo(
   () =>
-    io("https://15-207-16-76.nip.io", {
+    io(server, {
       withCredentials: true,
       transports: ["websocket"],
     }),
@@ -21,4 +19,4 @@ const SocketProvider=({children})=> {
     );
 }
 
-export {SocketProvider,getSocket};
+export {SocketProvider};

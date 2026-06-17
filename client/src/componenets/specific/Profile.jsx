@@ -57,6 +57,7 @@
 // };
 // export default Profile;
 import {
+  alpha,
   Avatar,
   Box,
   Dialog,
@@ -66,7 +67,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import {
   Face as FaceIcon,
@@ -82,15 +83,23 @@ import { TransformImage } from "../../lib/features";
 const Profile = ({ user, friendAvatar, friendName }) => {
   const [open, setOpen] = useState(false);
 
-  const isFriendPicture = Boolean(friendAvatar);
-  const imageUrl = TransformImage(friendAvatar || user?.avatar?.url, 500);
-  const displayName = isFriendPicture ? friendName : user?.name;
+  const isFriendProfile = Boolean(friendAvatar || friendName);
+  const rawImageUrl = friendAvatar || user?.avatar?.url || "";
+  const imageUrl = rawImageUrl ? TransformImage(rawImageUrl, 500) : "";
+  const displayName = isFriendProfile ? friendName : user?.name;
+  const initials = (displayName || "Patrachar")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
 
   return (
     <>
       <Stack
         direction={"column"}
-        spacing={2}
+        spacing={2.25}
         alignItems={"center"}
         sx={{ height: "100%" }}
       >
@@ -102,58 +111,101 @@ const Profile = ({ user, friendAvatar, friendName }) => {
             border: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
+            boxShadow: (theme) =>
+              theme.palette.mode === "light"
+                ? "0 18px 48px rgba(15, 23, 42, 0.08)"
+                : "0 18px 48px rgba(0, 0, 0, 0.22)",
           }}
         >
-          <Typography
-            variant="overline"
-            fontWeight={800}
-            color="text.secondary"
-            sx={{ display: "block", px: 2, pt: 1.5 }}
-          >
-            {isFriendPicture ? "Friend Picture" : "My Profile"}
-          </Typography>
           <Box
             sx={{
-              height: 104,
+              minHeight: 132,
+              p: 2,
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
               background:
                 "linear-gradient(135deg, #2563eb 0%, #0f766e 100%)",
             }}
-          />
-          <Stack alignItems="center" sx={{ px: 2, pb: 2, mt: -7 }}>
+          >
+            <Typography
+              variant="overline"
+              fontWeight={900}
+              sx={{
+                color: "rgba(255,255,255,0.88)",
+                letterSpacing: 0,
+              }}
+            >
+              {isFriendProfile ? "Conversation" : "My Profile"}
+            </Typography>
+            <Box
+              sx={{
+                px: 1.25,
+                py: 0.5,
+                borderRadius: 99,
+                bgcolor: "rgba(255,255,255,0.16)",
+                color: "white",
+                fontSize: 12,
+                fontWeight: 800,
+              }}
+            >
+              Active
+            </Box>
+          </Box>
+
+          <Stack alignItems="center" sx={{ px: 2.25, pb: 2.5, mt: -8 }}>
             <Avatar
               src={imageUrl}
               alt={displayName}
               onClick={() => imageUrl && setOpen(true)}
               sx={{
-                width: 132,
-                height: 132,
+                width: 144,
+                height: 144,
                 objectFit: "cover",
-                border: "5px solid white",
-                cursor: "pointer",
-                boxShadow: "0 16px 40px rgba(15, 23, 42, 0.18)",
+                border: "6px solid",
+                borderColor: "background.paper",
+                cursor: imageUrl ? "pointer" : "default",
+                boxShadow: "0 18px 44px rgba(15, 23, 42, 0.24)",
                 transition: "0.2s ease",
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.18),
+                color: "primary.main",
+                fontSize: 40,
+                fontWeight: 900,
                 "&:hover": {
-                  transform: "scale(1.03)",
+                  transform: imageUrl ? "scale(1.03)" : "none",
                 },
               }}
-            />
-            <Typography variant="h6" fontWeight={800} mt={1.5} noWrap>
+            >
+              {!imageUrl && initials}
+            </Avatar>
+            <Typography
+              variant="h6"
+              fontWeight={900}
+              mt={1.75}
+              noWrap
+              sx={{
+                maxWidth: "100%",
+                textAlign: "center",
+              }}
+            >
               {displayName || "User"}
             </Typography>
-            {isFriendPicture && (
-              <Typography variant="body2" color="text.secondary">
-                Click picture to view
-              </Typography>
-            )}
-            {!isFriendPicture && (
-              <Typography variant="body2" color="text.secondary" noWrap>
-                @{user?.userName || "username"}
-              </Typography>
-            )}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              noWrap
+              sx={{ maxWidth: "100%", textAlign: "center" }}
+            >
+              {isFriendProfile
+                ? imageUrl
+                  ? "Click picture to view"
+                  : "Private conversation"
+                : `@${user?.userName || "username"}`}
+            </Typography>
           </Stack>
         </Paper>
 
-        {!isFriendPicture && (
+        {!isFriendProfile && (
           <Paper
             elevation={0}
             sx={{
@@ -192,12 +244,30 @@ const Profile = ({ user, friendAvatar, friendName }) => {
             </Stack>
           </Paper>
         )}
+
+        {isFriendProfile && (
+          <Paper
+            elevation={0}
+            sx={{
+              width: "100%",
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <ProfileCard
+              heading={"Chat"}
+              text={displayName || "Selected conversation"}
+              Icon={<FaceIcon />}
+            />
+          </Paper>
+        )}
       </Stack>
 
       {/* Fullscreen Image Dialog */}
 
       <Dialog
-        open={open}
+        open={open && Boolean(imageUrl)}
         onClose={() => setOpen(false)}
         maxWidth="lg"
         PaperProps={{

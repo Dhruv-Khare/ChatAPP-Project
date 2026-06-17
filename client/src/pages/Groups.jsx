@@ -14,7 +14,6 @@ import {
   Drawer,
   Grid,
   IconButton,
-  Skeleton,
   Stack,
   TextField,
   Tooltip,
@@ -24,12 +23,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "../componenets/styled/StyledComponent";
 import AvatarCard from "../componenets/shared/AvatarCard";
-import { sampleChats, sampleUsers } from "../contants/sampleData";
 import { lazy } from "react";
 import { Suspense } from "react";
 import USerItem from "../componenets/shared/USerItem";
 import {
-  useAddGroupMemberMutation,
   useDeleteChatMutation,
   useGetChatDetailsQuery,
   useGetMyGroupsQuery,
@@ -56,12 +53,10 @@ const Groups = () => {
   const chatId = useSearchParams()[0].get("group");
   const myGroups = useGetMyGroupsQuery();
   const navigate=useNavigate();
-  console.log("Group:", myGroups.data);
   const groupDetails = useGetChatDetailsQuery(
     { chatId: chatId, populate: true },
     { skip: !chatId },
   );
-  console.log("Group Details:", groupDetails.data);
   const [updateGroupName, isLoadingUpdategroupName] = useMutationHokk(
     useUpdateGroupNameMutation,
   );
@@ -69,7 +64,7 @@ const Groups = () => {
     useRemoveGroupMemberMutation,
   );
 
-  const [deleteGroup,isLoadingDeleteGroup]=useMutationHokk(useDeleteChatMutation,);
+  const [deleteGroup]=useMutationHokk(useDeleteChatMutation,);
 
   const chatID = useSearchParams()[0].get("group");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -122,10 +117,8 @@ const Groups = () => {
       chatId: chatId,
       name: groupNameUpdatedValue,
     });
-    console.log("Group name Updated ");
   };
   const openAddMemberHandler = () => {
-    console.log("Add  member");
     dispatch(setIsAddMember(true));
   };
   const openConfirmDeleteHandler = () => {
@@ -142,7 +135,6 @@ const Groups = () => {
     navigate("/groups");
   };
   const removeMemberHandler = (userId) => {
-    console.log(userId);
     removeGroupMember(`Removing Group Member...`, { chatId, userId });
   };
   // useEffect(() => {

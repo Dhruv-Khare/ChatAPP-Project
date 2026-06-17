@@ -4,7 +4,10 @@ const errorMiddleware = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
 
-  // console.log(err);
+  if (err.statusCode === 500) {
+    console.error(`[${req.method}] ${req.originalUrl}`, err);
+  }
+
   if(err.code===11000)
   {
     const error=Object.keys(err.keyPattern).join(",");

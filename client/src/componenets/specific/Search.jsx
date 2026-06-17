@@ -3,21 +3,17 @@ import {
   DialogTitle,
   InputAdornment,
   List,
-  ListItem,
-  ListItemText,
   Stack,
   TextField,
 } from "@mui/material";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useInputValidation } from "6pp";
 import { Search as SearchIcon } from "@mui/icons-material";
 import USerItem from "../shared/USerItem";
-import { sampleUsers } from "../../contants/sampleData";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsSearch } from "../../redux/reducer/msc";
 import { useLazySearchUserQuery, useSendFriendReqMutation } from "../../redux/api/api";
 import { useEffect } from "react";
-import { toast } from "react-hot-toast";
 import { useMutationHokk } from "../../hooks/hook";
 
 const Search = () => {
@@ -53,7 +49,6 @@ const Search = () => {
     const timeOutId=setTimeout(()=>{
       // console.log("Search Value ",search.value);
       searchUser(search.value).then(({data})=>{
-        console.log(data);
         setUsers(data?.users);
       }).catch((err)=>{
         console.log(err);
@@ -63,7 +58,7 @@ const Search = () => {
     return () => {
       clearTimeout(timeOutId);
     }
-  }, [search.value])
+  }, [search.value, searchUser])
   
 
   return (

@@ -10,9 +10,8 @@ import { useMyChatsQuery } from "../../redux/api/api";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsDeleteMenu, setIsMobile, setSelectedDeleteChats } from "../../redux/reducer/msc";
 import { useErrors, useSocketEvents } from "../../hooks/hook";
-import { getSocket } from "../../socket";
+import { useSocket } from "../../socketContext";
 import {
-  CHAT_JOINED,
   NEW_MESSAGE_ALERT,
   NEW_REQUEST,
   ONLINEUSER,
@@ -40,7 +39,7 @@ const AppLayout = () => (WrappedComponent) => {
 
     const [onlineUsers,setOnlineUsers]=useState([]);
 
-    const socket = getSocket();
+    const socket = useSocket();
     // console.log(socket.id);
 
     const { data, isLoading, isError, error, refetch } = useMyChatsQuery("");
@@ -66,7 +65,7 @@ const AppLayout = () => (WrappedComponent) => {
         // const id=data.chatId;
         // console.log("New Message Alert",id);
       },
-      [chatId],
+      [chatId, dispatch],
     );
     const newRequestListener = useCallback(() => {
       dispatch(incrementNotification());
@@ -77,8 +76,6 @@ const AppLayout = () => (WrappedComponent) => {
     }, [refetch, navigate]);
     const onlineUsersListener = useCallback((data) => {
       setOnlineUsers(data);
-      console.log(onlineUsers)
-      
     }, []);
 
     const eventArr = {
@@ -149,7 +146,12 @@ const AppLayout = () => (WrappedComponent) => {
           </Grid>
           <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
             <Box height="100%" sx={{ bgcolor: "background.default" }}>
-              <WrappedComponent {...props} chatId={chatId} user={user} />
+              <WrappedComponent
+                {...props}
+                chatId={chatId}
+                user={user}
+                selectedChat={selectedChat}
+              />
             </Box>
           </Grid>
           <Grid

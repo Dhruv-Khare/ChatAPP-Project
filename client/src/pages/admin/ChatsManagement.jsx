@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "../../componenets/layout/AdminLayout";
 import Table from "../../componenets/shared/Table";
 import { Avatar, Skeleton, Stack } from "@mui/material";
-import { dashboardData } from "../../contants/sampleData";
 import { TransformImage } from "../../lib/features";
 import AvatarCard from "../../componenets/shared/AvatarCard";
 import { useFetchData } from "6pp";
@@ -68,7 +67,6 @@ const ChatsManagement = () => {
     key: "chat-stats",
     credentials: "include",
   });
-  console.log("data", data);
   useErrors([
     {
       isError: error,

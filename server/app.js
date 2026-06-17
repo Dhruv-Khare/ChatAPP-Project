@@ -26,7 +26,7 @@ import { socketAuthenticator } from "./middlewares/auth.js";
 dotenv.config({ path: "./.env" });
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
-const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
+const envMode = process.env.NODE_ENV?.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY || "ygdhghjgiuyiughgu";
 
 const onlineUsers=new Set();

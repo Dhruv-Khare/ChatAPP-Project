@@ -20,11 +20,9 @@ import {
   SearchField,
 } from "../../componenets/styled/StyledComponent";
 import { DoughnutCharts, LineCharts } from "../../componenets/specific/Charts";
-import { useErrors, useMutationHokk } from "../../hooks/hook";
-import { useGetAdminDashboardStatsMutation } from "../../redux/api/api";
+import { useErrors } from "../../hooks/hook";
 import { useFetchData } from "6pp";
 import { server } from "../../contants/config";
-import { LayoutLoader } from "../../componenets/layout/Loaders";
 
 const Dashboard = () => {
   const { loading, data, error } = useFetchData({

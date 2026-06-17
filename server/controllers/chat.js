@@ -42,6 +42,9 @@ const getMyChats = TryCatch(async (req, res, next) => {
   
   const transformedChats = chats.map(({ _id, name, members, groupChat }) => {
     const otherMember = getOtherMembers(members, req.user);
+
+    if (!groupChat && !otherMember) return null;
+
     return {
       _id,
       groupChat,
@@ -52,7 +55,7 @@ const getMyChats = TryCatch(async (req, res, next) => {
             .map((member) => member?.avatar?.url)
             .filter(Boolean)
         : [otherMember?.avatar?.url].filter(Boolean),
-      name: groupChat ? name : otherMember?.name || "Deleted User",
+      name: groupChat ? name : otherMember.name,
       // members: members.reduce((prev, curr) => {
       //   if (curr._id.toString() !== req.user.toString()) {
       //     prev.push(curr._id);
@@ -68,7 +71,7 @@ const getMyChats = TryCatch(async (req, res, next) => {
         )
         .map((member) => member._id),
     };
-  });
+  }).filter(Boolean);
 
   res.status(200).json({
     success: true,
@@ -124,7 +127,9 @@ const addMember = TryCatch(async (req, res, next) => {
   chat.members.push(
     ...newMembers
       .filter((member) => {
-        return  !chat.members.includes(member._id);
+        return member && !chat.members.some(
+          (existingMember) => existingMember.toString() === member._id.toString()
+        );
       })
       .map((member) => member._id)
   );
@@ -222,7 +227,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
     req,
     ALERT,
     chat.members,
-{    message:`User ${req.user.name} has left the group ${chat.name}`,
+{    message:`A user has left the group ${chat.name}`,
 chatId
 }  );
   emmitEvent(req, REFETCH_CHATS, allMembers);
@@ -246,11 +251,11 @@ const sendMessage = TryCatch(async (req, res, next) => {
   const files = req.files || [];
   if (files.length < 1) {
     return next(new ErrorHandler("Please upload attachements", 400));
-    if (files.length > 5) {
-      return next(
-        new ErrorHandler("You can upload maximum 5 attachements", 400)
-      );
-    }
+  }
+  if (files.length > 5) {
+    return next(
+      new ErrorHandler("You can upload maximum 5 attachements", 400)
+    );
   }
   //uploaad files here
 
@@ -356,7 +361,10 @@ const deleteChat = TryCatch(async (req, res, next) => {
     );
   }
 
-  if (!chat.groupChat && !chat.members.includes(req.user)) {
+  if (
+    !chat.groupChat &&
+    !chat.members.some((member) => member.toString() === req.user.toString())
+  ) {
     return next(
       new ErrorHandler("You are not allowed to delete the chat", 403)
     );
@@ -366,7 +374,7 @@ const deleteChat = TryCatch(async (req, res, next) => {
 
   const messagesWithAttachements = await Message.find({
     chat: chatId,
-    attachement: { $exists: true, $ne: [] },
+    attachements: { $exists: true, $ne: [] },
   });
   const public_Ids = [];
   messagesWithAttachements.forEach(({ attachements }) => {
@@ -398,7 +406,7 @@ const getMessages = TryCatch(async (req, res, next) => {
 
   if(!chat) return next(new ErrorHandler("Chat Not Found",404));
 
-  if(!chat.members.includes(req.user.toString()))
+  if(!chat.members.some((member) => member.toString() === req.user.toString()))
     return next(new ErrorHandler("You are not allowed to access this chat",403));
 
   const [messages, totalMessages] = await Promise.all([

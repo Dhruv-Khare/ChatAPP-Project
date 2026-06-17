@@ -1,5 +1,5 @@
 import { Menu, Stack } from "@mui/material";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { setIsDeleteMenu } from "../../redux/reducer/msc";
 import { Delete as DeleteIcon, ExitToApp as ExitToAppIcon } from "@mui/icons-material";
@@ -9,8 +9,8 @@ import { useNavigate } from "react-router-dom";
 
 const DeleteChatMenu = ({ dispatch, deleteOptionAnchor }) => {
     const {isDeleteMenu,selectedDeleteChats}=useSelector(state=>state.msc);
-    const [deleteChat,_,deleteChatData]=useMutationHokk(useDeleteChatMutation);
-    const [leaveGroup,__,leaveGroupData]=useMutationHokk(useLeaveGroupMutation);
+    const [deleteChat,,deleteChatData]=useMutationHokk(useDeleteChatMutation);
+    const [leaveGroup,,leaveGroupData]=useMutationHokk(useLeaveGroupMutation);
     const navigate=useNavigate();
     const closeHandler=()=>{
         dispatch(setIsDeleteMenu(false));
@@ -26,7 +26,7 @@ const DeleteChatMenu = ({ dispatch, deleteOptionAnchor }) => {
     }
     useEffect(()=>{
         if(deleteChatData||leaveGroupData) navigate("/");
-    },[deleteChatData,leaveGroupData])
+    },[deleteChatData,leaveGroupData,navigate])
   return (
     
     <Menu open={isDeleteMenu} onClose={closeHandler} anchorEl={deleteOptionAnchor} anchorOrigin={{

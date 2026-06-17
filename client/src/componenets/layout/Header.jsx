@@ -33,7 +33,7 @@ import {
   setIsSearch,
 } from "../../redux/reducer/msc.js";
 import { resetNotificationCount } from "../../redux/reducer/chat.js";
-import { useThemeMode } from "../../context/ThemeModeContext.jsx";
+import { useThemeMode } from "../../context/theme.js";
 
 const SearchDialog = lazy(() => import("../specific/Search"));
 const NotificationsDialog = lazy(() => import("../specific/Notifications"));

@@ -1,4 +1,3 @@
-import React from "react";
 import { Line, Doughnut } from "react-chartjs-2";
 import { getLastDays } from "../../lib/features";
 import {
@@ -11,8 +10,6 @@ import {
   LineElement,
   ArcElement,
   Legend,
-  plugins,
-  scales,
 } from "chart.js";
 import { orange, orangeLight, purple, purpleLight } from "../../contants/color";
 ChartJS.register(

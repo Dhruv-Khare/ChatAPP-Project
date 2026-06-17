@@ -7,8 +7,8 @@ import { getBase64, getSockets } from "../lib/helper.js";
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
   httpOnly: true,
-  sameSite: "none",
-  secure: true,
+  sameSite: process.env.NODE_ENV === "PRODUCTION" ? "none" : "lax",
+  secure: process.env.NODE_ENV === "PRODUCTION",
 };
 
 const connectDB = (uri) => {

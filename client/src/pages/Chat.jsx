@@ -4,13 +4,15 @@ import Applayout from "../componenets/layout/Applayout.jsx";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   AttachFile as AttachFileIcon,
+  ChatBubbleOutline as ChatBubbleOutlineIcon,
+  Lock as LockIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
 import { InputBox } from "../componenets/styled/StyledComponent.jsx";
 import FileMenu from "../componenets/Dialog/FileMenu.jsx";
 // import { sampleMessage } from "../contants/sampleData.js";
 import MessageComponent from "../componenets/shared/MessageComponent.jsx";
-import { getSocket } from "../socket.jsx";
+import { useSocket } from "../socketContext.js";
 import {
   ALERT,
   CHAT_JOINED,
@@ -30,12 +32,13 @@ import { setIsFileMenu } from "../redux/reducer/msc.js";
 import { removeNewMessageAlert } from "../redux/reducer/chat.js";
 import { TypingLoader } from "../componenets/layout/Loaders.jsx";
 import { useNavigate } from "react-router-dom";
+import AvatarCard from "../componenets/shared/AvatarCard.jsx";
 
-const Chat = ({ chatId, user }) => {
+const Chat = ({ chatId, user, selectedChat }) => {
   const containerRef = useRef(null);
   const bottomRef = useRef(null);
 
-  const socket = getSocket();
+  const socket = useSocket();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // console.log(chatId===user._id,chatId,user._id);
@@ -99,7 +102,6 @@ const Chat = ({ chatId, user }) => {
     if (!message.trim()) return;
 
     socket.emit(NEW_MESSAGE, { chatId, message, members });
-    console.log(chatId, message.sender);
     setMessage("");
   };
 
@@ -114,7 +116,7 @@ const Chat = ({ chatId, user }) => {
           socket.emit(CHAT_LEAVED, { userId:user._id , members });
 
     };
-  }, [chatId]);
+  }, [chatId, dispatch, members, setOldMessages, socket, user._id]);
 
   useEffect(() => {
     if (bottomRef.current)
@@ -123,7 +125,7 @@ const Chat = ({ chatId, user }) => {
 
   useEffect(() => {
     if (chatDetails.isError) return navigate("/");
-  }, [chatDetails.isError]);
+  }, [chatDetails.isError, navigate]);
 
   const newMessagesHandler = useCallback(
     (data) => {
@@ -135,7 +137,6 @@ const Chat = ({ chatId, user }) => {
   );
   const startTypingListener = useCallback(
     (data) => {
-      console.log(data);
       if (data.chatId !== chatId) return;
       // console.log("start - typing",data);
       setUserTyping(true);
@@ -144,7 +145,6 @@ const Chat = ({ chatId, user }) => {
   );
   const stopTypingListener = useCallback(
     (data) => {
-      console.log(data);
       if (data.chatId !== chatId) return;
       // console.log("stop - typing",data);
       setUserTyping(false);
@@ -164,7 +164,7 @@ const Chat = ({ chatId, user }) => {
         createdAt: new Date().toISOString(),
       };
 
-      setMessage((prev) => [...prev, messageForAlert]);
+      setMessages((prev) => [...prev, messageForAlert]);
     },
     [chatId],
   );
@@ -181,6 +181,9 @@ const Chat = ({ chatId, user }) => {
   useErrors(errors);
 
   const allMessages = [...oldMessages, ...messages];
+  const conversationTitle = selectedChat?.groupChat
+    ? chatDetails?.data?.chat?.name
+    : selectedChat?.name || chatDetails?.data?.chat?.name || "Conversation";
   // console.log(allMessages);
 
   return chatDetails.isLoading ? (
@@ -189,19 +192,47 @@ const Chat = ({ chatId, user }) => {
     <Fragment>
       <Box
         sx={{
-          height: "4.5rem",
-          px: 2,
+          minHeight: "5rem",
+          px: { xs: 2, sm: 2.5 },
+          py: 1,
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
           borderBottom: "1px solid",
           borderColor: "divider",
           bgcolor: "background.paper",
           backdropFilter: "blur(10px)",
         }}
       >
-        <Typography variant="subtitle1" fontWeight={800} noWrap>
-          {chatDetails?.data?.chat?.name || "Conversation"}
-        </Typography>
+        <Stack direction="row" alignItems="center" spacing={1.5} minWidth={0}>
+          <AvatarCard avatar={selectedChat?.avatar || []} />
+          <Stack minWidth={0}>
+            <Typography variant="subtitle1" fontWeight={900} noWrap>
+              {conversationTitle}
+            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.75}>
+              <LockIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+              <Typography variant="caption" color="text.secondary" fontWeight={700} noWrap>
+                Private realtime conversation
+              </Typography>
+            </Stack>
+          </Stack>
+        </Stack>
+        <Box
+          sx={{
+            display: { xs: "none", sm: "block" },
+            px: 1.25,
+            py: 0.5,
+            borderRadius: 99,
+            bgcolor: "action.selected",
+            color: "primary.main",
+            fontSize: 12,
+            fontWeight: 900,
+          }}
+        >
+          Secure
+        </Box>
       </Box>
       <Stack
         ref={containerRef}
@@ -220,9 +251,42 @@ const Chat = ({ chatId, user }) => {
       >
         {/* <ChatHeader /> */}
 
-        {allMessages.map((i) => (
-          <MessageComponent key={i._id} message={i} user={user} />
-        ))}
+        {allMessages.length > 0 ? (
+          allMessages.map((i) => (
+            <MessageComponent key={i._id} message={i} user={user} />
+          ))
+        ) : (
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            spacing={1.5}
+            sx={{
+              minHeight: "100%",
+              textAlign: "center",
+              color: "text.secondary",
+            }}
+          >
+            <Box
+              sx={{
+                width: 76,
+                height: 76,
+                borderRadius: "50%",
+                display: "grid",
+                placeItems: "center",
+                bgcolor: "action.selected",
+                color: "primary.main",
+              }}
+            >
+              <ChatBubbleOutlineIcon sx={{ fontSize: 38 }} />
+            </Box>
+            <Typography variant="h6" color="text.primary" fontWeight={900}>
+              Start the conversation
+            </Typography>
+            <Typography maxWidth={320}>
+              Send a message to {conversationTitle} and it will appear here instantly.
+            </Typography>
+          </Stack>
+        )}
 
         {userTyping && <TypingLoader />}
 

@@ -1,6 +1,5 @@
 import { Button, Dialog, DialogTitle, Skeleton, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { sampleUsers } from "../../contants/sampleData";
+import { useState } from "react";
 
 import USerItem from "../shared/USerItem";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,9 +21,7 @@ const AddMemberDialog = ({ chatId }) => {
   );
   const { isAddMember } = useSelector((state) => state.msc);
 
-  const { isError, error, isLoading, data,refetch } = useAvailableFriendsQuery();
-
-  console.log(data);
+  const { isError, error, isLoading, data, refetch } = useAvailableFriendsQuery(chatId);
 
   const dispatch = useDispatch();
 
@@ -56,8 +53,8 @@ const AddMemberDialog = ({ chatId }) => {
       <Stack p={"2rem"} width={"20rem"} spacing={"1rem"}>
         <DialogTitle textAlign={"center"}>Add Member</DialogTitle>
         <Stack spacing={"1rem"}>
-          {isLoading?<Skeleton/>:data?.friends?.length > 0 ? (
-            data?.friends?.map((user) => (
+          {isLoading?<Skeleton/>:data?.availableFriends?.length > 0 ? (
+            data?.availableFriends?.map((user) => (
               <USerItem
                 key={user._id}
                 user={user}

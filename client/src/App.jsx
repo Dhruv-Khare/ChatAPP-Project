@@ -25,7 +25,7 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const ChatsManagement = lazy(() => import("./pages/admin/ChatsManagement"));
 const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
 
-let user = true;
+// let user = true;
 const App = () => {
   const { user,loader } = useSelector(state => state.auth);
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ const App = () => {
     axios
       .get(`${server}/api/v1/user/me`,{withCredentials:true})
       .then(({data}) => dispatch(userExists(data.user)))
-      .catch((err)=>dispatch(userNotExists()));
+      .catch(()=>dispatch(userNotExists()));
   }, [dispatch]);
   return loader?<LayoutLoader />:(
     <BrowserRouter>

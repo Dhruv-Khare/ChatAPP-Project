@@ -32,14 +32,14 @@ const authSlice=createSlice({
                 state.isAdmin=true;
             else
                 state.isAdmin=false;
-        }).addCase(getAdmin.rejected,(state,action)=>{
+        }).addCase(getAdmin.rejected,(state)=>{
             state.isAdmin=false;
         })
         .addCase(adminLogout.fulfilled,(state,action)=>{
             state.isAdmin=false;
             toast.success(action.payload)
         })
-        .addCase(adminLogout.rejected,(state,action)=>{
+        .addCase(adminLogout.rejected,(state)=>{
             state.isAdmin=true;
         })
     }

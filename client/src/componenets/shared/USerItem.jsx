@@ -1,7 +1,6 @@
 import { Avatar, IconButton, ListItem, Stack, Typography } from "@mui/material";
-import React, { memo } from "react";
+import { memo } from "react";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
-import { TransformImage } from "../../lib/features";
 
 const UserItem = ({
   user,
@@ -25,7 +24,7 @@ const UserItem = ({
         <Typography
           variant="body1"
           sx={{
-            flexGlow: 1,
+            flexGrow: 1,
             display: "webkit-box",
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",

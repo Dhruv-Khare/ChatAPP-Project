@@ -8,8 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useMemo, useState } from "react";
-import { sampleUsers } from "../../contants/sampleData";
+import { useMemo, useState } from "react";
 import USerItem from "../shared/USerItem";
 import { useAvailableFriendsQuery, useNewGroupMutation } from "../../redux/api/api";
 import { useErrors, useMutationHokk } from "../../hooks/hook";
@@ -26,7 +25,6 @@ const NewGroups = () => {
   const {isError,error,isLoading,data}=useAvailableFriendsQuery();
   const [newGroup,isLoadingNewgroup]= useMutationHokk(useNewGroupMutation);
 
-  const [members, setMembers] = useState(sampleUsers);
   const [selectedMembers, setSelectedMembers] = useState([]);
   const groupName = useInputValidation("");
 
@@ -50,10 +48,6 @@ const NewGroups = () => {
     if(!groupName.value)return  toast.error("Please Enter Group Name");
 
     if(selectedMembers.length<2)return  toast.error("Please Select atlest 3 members");
-    console.log("submit",selectedMembers,groupName.value);
-
-
-
     newGroup("Creating New Group...",{name:groupName.value,members:selectedMembers});
 
 

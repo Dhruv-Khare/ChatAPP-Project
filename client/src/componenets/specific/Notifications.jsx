@@ -8,13 +8,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { memo } from "react";
-import { smapleNotification } from "../../contants/sampleData";
+import { memo } from "react";
 import { useAcceptFriendReqMutation, useGetNotificationQuery } from "../../redux/api/api.js";
 import { useErrors, useMutationHokk } from "../../hooks/hook";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsNotifications } from "../../redux/reducer/msc.js";
-import toast from "react-hot-toast";
 
 
 const Notifications = () => {

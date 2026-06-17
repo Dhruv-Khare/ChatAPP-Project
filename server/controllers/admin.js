@@ -60,7 +60,7 @@ const allUsers = TryCatch(async (req, res, next) => {
         _id,
         name,
         userName,
-        avatar: avatar.url,
+        avatar: avatar?.url,
         groups,
         friends,
       };
@@ -79,21 +79,25 @@ const allChats = TryCatch(async (req, res, next) => {
 
   const transformedChats = await Promise.all(
     chats.map(async ({ _id, name, groupChat, members, creator }) => {
-      const totalMessages = await Chat.countDocuments({ _id });
+      const totalMessages = await Message.countDocuments({ chat: _id });
 
       return {
         _id,
         name,
         groupChat,
-        avatar: members.slice(0, 3).map((member) => member.avatar.url),
-        members: members.map(({ _id, name, avatar }) => ({
+        avatar: members
+          .filter(Boolean)
+          .slice(0, 3)
+          .map((member) => member.avatar?.url)
+          .filter(Boolean),
+        members: members.filter(Boolean).map(({ _id, name, avatar }) => ({
           _id,
           name,
-          avatar: avatar.url,
+          avatar: avatar?.url,
         })),
         creator: {
           name: creator?.name || "None",
-          avatar: creator?.avatar.url || "",
+          avatar: creator?.avatar?.url || "",
         },
         totalMembers: members.length,
         totalMessages,
@@ -112,7 +116,7 @@ const allMessages = TryCatch(async (req, res) => {
     .populate("sender", "name avatar")
     .populate("chat", "groupChat");
 
-  const transformedMessages = messages.map(
+  const transformedMessages = messages.filter(({ sender, chat }) => sender && chat).map(
     ({ content, attachements, _id, sender, createdAt, chat }) => {
       return {
         _id,
@@ -121,7 +125,7 @@ const allMessages = TryCatch(async (req, res) => {
         sender: {
           _id: sender._id,
           name: sender.name,
-          avatar: sender.avatar.url,
+          avatar: sender.avatar?.url,
         },
         chat: chat._id,
         groupChat: chat.groupChat,

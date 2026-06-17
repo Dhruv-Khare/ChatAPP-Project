@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 import { userExists } from "../redux/reducer/auth";
 import { server } from "../contants/config";
 import axios from "axios";
-import { useThemeMode } from "../context/ThemeModeContext";
+import { useThemeMode } from "../context/theme";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
