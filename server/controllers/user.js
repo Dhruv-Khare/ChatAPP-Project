@@ -191,16 +191,18 @@ const getMyFriends=TryCatch(async(req,res)=>{
     groupChat:false,
   }).populate("members","name avatar");
 
-  const friends=chats.map(({members})=>{
-    const otherUser=getOtherMembers(members,req.user);
+  const friends=chats
+    .map(({members})=>{
+      const otherUser=getOtherMembers(members,req.user);
+      if(!otherUser) return null;
 
-    return {
-      _id:otherUser._id,
-      name:otherUser.name,
-      avatar:otherUser.avatar.url,
-
-    }
-  });
+      return {
+        _id:otherUser._id,
+        name:otherUser.name,
+        avatar:otherUser.avatar?.url,
+      }
+    })
+    .filter(Boolean);
 
   if(chatId){
     const chat=await Chat.findById(chatId);

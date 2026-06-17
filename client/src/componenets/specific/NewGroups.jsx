@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { sampleUsers } from "../../contants/sampleData";
 import USerItem from "../shared/USerItem";
 import { useAvailableFriendsQuery, useNewGroupMutation } from "../../redux/api/api";
@@ -30,12 +30,12 @@ const NewGroups = () => {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const groupName = useInputValidation("");
 
-  console.log("availabe friends:",data)
+  // console.log("availabe friends:",data)
 
-  const errors=[{
+  const errors=useMemo(()=>[{
     isError,
     error,
-  }]
+  }],[isError,error]);
   useErrors(errors);
 
   const selectMemnerHandler = (id) => {
