@@ -1,4 +1,3 @@
-// import React from "react";
 import { Box, IconButton, Skeleton, Stack, Typography } from "@mui/material";
 import Applayout from "../componenets/layout/Applayout.jsx";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
@@ -10,7 +9,6 @@ import {
 } from "@mui/icons-material";
 import { InputBox } from "../componenets/styled/StyledComponent.jsx";
 import FileMenu from "../componenets/Dialog/FileMenu.jsx";
-// import { sampleMessage } from "../contants/sampleData.js";
 import MessageComponent from "../componenets/shared/MessageComponent.jsx";
 import { useSocket } from "../socketContext.js";
 import {
@@ -41,8 +39,7 @@ const Chat = ({ chatId, user, selectedChat }) => {
   const socket = useSocket();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // console.log(chatId===user._id,chatId,user._id);
-  // const fileMenuRef = useRef(null);
+
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [page, setPage] = useState(1);
@@ -70,9 +67,7 @@ const Chat = ({ chatId, user, selectedChat }) => {
     { isError: chatDetails.isError, error: chatDetails.error },
     { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error },
   ];
-  // console.log(chatDetails.data);
 
-  // console.log("oldMessageChunk", oldMessagesChunk.data);
   const members = chatDetails?.data?.chat?.members;
 
   const attatchFileMEnuHanlder = (e) => {
@@ -83,7 +78,7 @@ const Chat = ({ chatId, user, selectedChat }) => {
   const messageOnChangeHandler = (e) => {
     setMessage(e.target.value);
 
-    if (!iAmTyping) {
+    if (!iAmTyping && socket) {
       socket.emit(START_TYPING, { members, chatId });
       setIAmTyping(true);
     }
@@ -92,31 +87,29 @@ const Chat = ({ chatId, user, selectedChat }) => {
 
     typingTimeOut.current = setTimeout(() => {
       setIAmTyping(false);
-      socket.emit(STOP_TYPING, { members, chatId });
-    }, [2000]);
+      socket?.emit(STOP_TYPING, { members, chatId });
+    }, 2000);
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    // console.log(message);
     if (!message.trim()) return;
 
-    socket.emit(NEW_MESSAGE, { chatId, message, members });
+    socket?.emit(NEW_MESSAGE, { chatId, message, members });
     setMessage("");
   };
 
   useEffect(() => {
     dispatch(removeNewMessageAlert(chatId));
-    socket.emit(CHAT_JOINED, { userId:user._id , members });
+    socket?.emit(CHAT_JOINED, { userId: user?._id, members });
     return () => {
       setMessage("");
       setMessages([]);
       setOldMessages([]);
       setPage(1);
-          socket.emit(CHAT_LEAVED, { userId:user._id , members });
-
+      socket?.emit(CHAT_LEAVED, { userId: user?._id, members });
     };
-  }, [chatId, dispatch, members, setOldMessages, socket, user._id]);
+  }, [chatId, dispatch, members, setOldMessages, socket, user?._id]);
 
   useEffect(() => {
     if (bottomRef.current)
@@ -129,7 +122,6 @@ const Chat = ({ chatId, user, selectedChat }) => {
 
   const newMessagesHandler = useCallback(
     (data) => {
-      // console.log(data);
       if (data.chatId !== chatId) return;
       setMessages((prev) => [...prev, data.message]);
     },
@@ -138,7 +130,6 @@ const Chat = ({ chatId, user, selectedChat }) => {
   const startTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      // console.log("start - typing",data);
       setUserTyping(true);
     },
     [chatId],
@@ -146,7 +137,6 @@ const Chat = ({ chatId, user, selectedChat }) => {
   const stopTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      // console.log("stop - typing",data);
       setUserTyping(false);
     },
     [chatId],
@@ -180,11 +170,10 @@ const Chat = ({ chatId, user, selectedChat }) => {
 
   useErrors(errors);
 
-  const allMessages = [...oldMessages, ...messages];
+  const allMessages = [...(oldMessages || []), ...(messages || [])];
   const conversationTitle = selectedChat?.groupChat
     ? chatDetails?.data?.chat?.name
     : selectedChat?.name || chatDetails?.data?.chat?.name || "Conversation";
-  // console.log(allMessages);
 
   return chatDetails.isLoading ? (
     <Skeleton />
@@ -249,8 +238,6 @@ const Chat = ({ chatId, user, selectedChat }) => {
               : "radial-gradient(circle at top left, rgba(96,165,250,0.16), transparent 32rem), #0f172a",
         }}
       >
-        {/* <ChatHeader /> */}
-
         {allMessages.length > 0 ? (
           allMessages.map((i) => (
             <MessageComponent key={i._id} message={i} user={user} />
@@ -317,7 +304,6 @@ const Chat = ({ chatId, user, selectedChat }) => {
               rotate: "30deg",
             }}
             onClick={attatchFileMEnuHanlder}
-            // ref={fileMenuRef}
           >
             <AttachFileIcon />
           </IconButton>

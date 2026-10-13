@@ -42,36 +42,33 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroups"));
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSearch, isNotifications,isNewGroup } = useSelector((state) => state.msc);
+  const { isSearch, isNotifications, isNewGroup } = useSelector((state) => state.msc);
   const { notificationCount } = useSelector((state) => state.chat);
   const { mode, toggleMode } = useThemeMode();
-  // const [isNewGroup, setIsNewGroup] = useState(false);
-  // const [isNotification, setIsNotification] = useState(false);
 
   const dispatch = useDispatch();
 
   const handleMobile = () => {
-    // console.log("Mobile");
     dispatch(setIsMobile(true));
   };
   const openSearchDialog = () => dispatch(setIsSearch(true));
   const openNEwGroup = () => {
-    console.log("New Group");
-    // setIsNewGroup((prev) => !prev);
     dispatch(setIsNewGroup(true));
   };
   const navigateToGroups = () => {
     navigate("/groups");
   };
   const logoutHandler = async () => {
-    // console.log("Logout");
     try {
       const { data } = await axios.get(`${server}/api/v1/user/logout`, {
         withCredentials: true,
       });
+      localStorage.removeItem("patrachar-token");
       dispatch(userNotExists());
       toast.success(data.message);
     } catch (error) {
+      localStorage.removeItem("patrachar-token");
+      dispatch(userNotExists());
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
@@ -126,19 +123,19 @@ const Header = () => {
               >
                 P
               </Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 800,
-                letterSpacing: 0,
-                display: {
-                  xs: "none",
-                  sm: "block",
-                },
-              }}
-            >
-              Patrachar
-            </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  letterSpacing: 0,
+                  display: {
+                    xs: "none",
+                    sm: "block",
+                  },
+                }}
+              >
+                Patrachar
+              </Typography>
             </Box>
             <Box
               sx={{
@@ -170,29 +167,11 @@ const Header = () => {
                 title="Search"
                 onClick={openSearchDialog}
               />
-              {/* <Tooltip title="Search">
-                <IconButton
-                  color="inherit"
-                  size="large "
-                  onClick={openSearchDialog}
-                >
-                  <SerchIcon />
-                </IconButton>
-              </Tooltip> */}
               <IconBtn
                 icon={<AddIcon />}
                 title="New Group"
                 onClick={openNEwGroup}
               />
-              {/* <Tooltip title="New Group">
-                <IconButton
-                  color="ingerit "
-                  size="large"
-                  onClick={openNEwGroup}
-                >
-                  <AddIcon />
-                </IconButton>
-              </Tooltip> */}
               <IconBtn
                 icon={<GroupIcon />}
                 title="manage Groups"
@@ -205,15 +184,6 @@ const Header = () => {
                 onClick={openNotification}
                 value={notificationCount}
               />
-              {/* <Tooltip title="manage Groups">
-                <IconButton
-                  color="ingerit "
-                  size="large"
-                  onClick={navigateToGroups}
-                >
-                  <GroupIcon />
-                </IconButton>
-              </Tooltip> */}
               <IconBtn
                 icon={mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
                 title={mode === "light" ? "Dark mode" : "Light mode"}
@@ -247,6 +217,7 @@ const Header = () => {
     </>
   );
 };
+
 const IconBtn = ({ icon, title, onClick, value, active = false }) => {
   return (
     <Tooltip title={title}>

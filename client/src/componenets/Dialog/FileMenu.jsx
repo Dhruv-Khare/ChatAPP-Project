@@ -10,19 +10,17 @@ import {
 import { useRef } from "react";
 import toast from "react-hot-toast";
 import { useSendAttatchementMutation } from "../../redux/api/api";
-// import React from "react";
 
-const FileMenu = ({ anchorEl ,chatId}) => {
-
-  const fileRef=useRef(null);
-  const VideoRef=useRef(null);
-  const AudioRef=useRef(null);
-  const ImageRef=useRef(null);
+const FileMenu = ({ anchorEl, chatId }) => {
+  const fileRef = useRef(null);
+  const VideoRef = useRef(null);
+  const AudioRef = useRef(null);
+  const ImageRef = useRef(null);
 
   const { isFileMenu } = useSelector((state) => state.msc);
   const dispatch = useDispatch();
 
-  const [sendAttatchment]=useSendAttatchementMutation();
+  const [sendAttatchment] = useSendAttatchementMutation();
 
   const closeHandler = () => dispatch(setIsFileMenu(false));
 
@@ -30,41 +28,34 @@ const FileMenu = ({ anchorEl ,chatId}) => {
     ref.current?.click();
   };
 
-  const fileChangeHandler = async(e, key) => {
-    const files=Array.from(e.target.files);
+  const fileChangeHandler = async (e, key) => {
+    const files = Array.from(e.target.files);
 
-    console.log(files);
+    if (files.length <= 0) return;
 
-    if(files.length<=0) return ;
-
-    if(files.length>5) return toast.error(`You can only send 5 ${key} at a time`);
+    if (files.length > 5) return toast.error(`You can only send 5 ${key} at a time`);
 
     dispatch(setUploadingLoader(true));
-    const toastId=toast.loading( `Sending ${key}...`);
+    const toastId = toast.loading(`Sending ${key}...`);
     closeHandler();
-    //fetchinghere
 
     try {
-      const myForm=new FormData();
-      myForm.append("chatId",chatId);
-      files.forEach((file)=>myForm.append("files",file));
+      const myForm = new FormData();
+      myForm.append("chatId", chatId);
+      files.forEach((file) => myForm.append("files", file));
 
-      // console.log(myForm);
+      const res = await sendAttatchment(myForm);
 
-      const res=await sendAttatchment(myForm);
-      
-      if(res.data) toast.success(`${key} sent Successfully`,{
-        id:toastId
-      })
-      else toast.error(`Failed to send $key`,{id:toastId});
+      if (res.data) {
+        toast.success(`${key} sent Successfully`, { id: toastId });
+      } else {
+        toast.error(res?.error?.data?.message || `Failed to send ${key}`, { id: toastId });
+      }
     } catch (error) {
-      toast.error(error,{id:toastId});
-    }
-    finally{
+      toast.error(error?.response?.data?.message || error?.message || "Failed to send attachments", { id: toastId });
+    } finally {
       dispatch(setUploadingLoader(false));
     }
-
-
   };
 
   return (
@@ -75,7 +66,7 @@ const FileMenu = ({ anchorEl ,chatId}) => {
         }}
       >
         <MenuList>
-          <MenuItem onClick={()=>selectRef(ImageRef)}>
+          <MenuItem onClick={() => selectRef(ImageRef)}>
             <Tooltip title="Image">
               <ImageIcon />
             </Tooltip>
@@ -90,7 +81,7 @@ const FileMenu = ({ anchorEl ,chatId}) => {
             />
           </MenuItem>
 
-          <MenuItem onClick={()=>selectRef(AudioRef)}>
+          <MenuItem onClick={() => selectRef(AudioRef)}>
             <Tooltip title="Audio">
               <AudioFileIcon />
             </Tooltip>
@@ -105,7 +96,7 @@ const FileMenu = ({ anchorEl ,chatId}) => {
             />
           </MenuItem>
 
-          <MenuItem onClick={()=>selectRef(VideoRef)}>
+          <MenuItem onClick={() => selectRef(VideoRef)}>
             <Tooltip title="Video">
               <VideoFileIcon />
             </Tooltip>
@@ -119,9 +110,8 @@ const FileMenu = ({ anchorEl ,chatId}) => {
               onChange={(e) => fileChangeHandler(e, "Videos")}
             />
           </MenuItem>
-        
-       
-          <MenuItem onClick={()=>selectRef(fileRef)}>
+
+          <MenuItem onClick={() => selectRef(fileRef)}>
             <Tooltip title="File">
               <UploadFileICon />
             </Tooltip>

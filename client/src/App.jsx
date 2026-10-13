@@ -1,8 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import Home from "./pages/Home";
-// import Login from "./pages/Login";
-// import Chat from "./pages/Chat";
-// import Groups from "./pages/Groups";
 import ProtectedRoute from "./componenets/auth/ProtectRout";
 import { lazy, Suspense, useEffect } from "react";
 import { LayoutLoader } from "./componenets/layout/Loaders";
@@ -25,23 +21,37 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const ChatsManagement = lazy(() => import("./pages/admin/ChatsManagement"));
 const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
 
-// let user = true;
 const App = () => {
-  const { user,loader } = useSelector(state => state.auth);
+  const { user, loader } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // console.log(server);
+    const token = localStorage.getItem("patrachar-token");
     axios
-      .get(`${server}/api/v1/user/me`,{withCredentials:true})
-      .then(({data}) => dispatch(userExists(data.user)))
-      .catch(()=>dispatch(userNotExists()));
+      .get(`${server}/api/v1/user/me`, {
+        withCredentials: true,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      .then(({ data }) => dispatch(userExists(data.user)))
+      .catch(() => {
+        localStorage.removeItem("patrachar-token");
+        dispatch(userNotExists());
+      });
   }, [dispatch]);
-  return loader?<LayoutLoader />:(
+
+  return loader ? (
+    <LayoutLoader />
+  ) : (
     <BrowserRouter>
       <Suspense fallback={<LayoutLoader />}>
         <Routes>
-          <Route element={<SocketProvider><ProtectedRoute user={user} /></SocketProvider>}>
+          <Route
+            element={
+              <SocketProvider>
+                <ProtectedRoute user={user} />
+              </SocketProvider>
+            }
+          >
             <Route path="/" element={<Home />} />
             <Route path="/chat/:chatID" element={<Chat />} />
             <Route path="/groups" element={<Groups />} />

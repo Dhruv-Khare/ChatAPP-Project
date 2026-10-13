@@ -37,8 +37,6 @@ import { useErrors, useMutationHokk } from "../hooks/hook";
 import { LayoutLoader } from "../componenets/layout/Loaders";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsAddMember } from "../redux/reducer/msc";
-// import AddMemberDialog from "../componenets/Dialog/AddMemberDialog";
-// import ConfirmDeleteDialog from "../componenets/Dialog/ConfirmDeleteDialog";
 
 const ConfirmDeleteDialog = lazy(
   () => import("../componenets/Dialog/ConfirmDeleteDialog"),
@@ -47,12 +45,10 @@ const AddMemberDialog = lazy(
   () => import("../componenets/Dialog/AddMemberDialog"),
 );
 
-// const isAddMember = false;
-
 const Groups = () => {
   const chatId = useSearchParams()[0].get("group");
   const myGroups = useGetMyGroupsQuery();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const groupDetails = useGetChatDetailsQuery(
     { chatId: chatId, populate: true },
     { skip: !chatId },
@@ -64,7 +60,7 @@ const Groups = () => {
     useRemoveGroupMemberMutation,
   );
 
-  const [deleteGroup]=useMutationHokk(useDeleteChatMutation,);
+  const [deleteGroup] = useMutationHokk(useDeleteChatMutation);
 
   const chatID = useSearchParams()[0].get("group");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,7 +86,7 @@ const Groups = () => {
     if (groupDetails.data) {
       setGroupName(groupDetails?.data?.chat?.name);
       setGroupNmaeUpdatedValue(groupDetails?.data?.chat?.name);
-      setMembers(groupDetails?.data?.chat?.members);
+      setMembers(groupDetails?.data?.chat?.members || []);
     }
     return () => {
       setGroupName("");
@@ -101,7 +97,7 @@ const Groups = () => {
   }, [groupDetails?.data]);
 
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+
   const navigateBack = () => {
     navigate("/");
   };
@@ -123,32 +119,18 @@ const Groups = () => {
   };
   const openConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(true);
-    // console.log("Dlete Member");
-
   };
   const closeConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(false);
   };
   const deleteHandler = () => {
-    deleteGroup("Deleting Group...",chatId);
+    deleteGroup("Deleting Group...", chatId);
     closeConfirmDeleteHandler();
     navigate("/groups");
   };
   const removeMemberHandler = (userId) => {
     removeGroupMember(`Removing Group Member...`, { chatId, userId });
   };
-  // useEffect(() => {
-  //   if (chatID) {
-  //     setGroupName(`Group Name ${chatID}`);
-  //     setGroupNmaeUpdatedValue(`Group Name ${chatID}`);
-  //   }
-
-  //   return () => {
-  //     setGroupName("");
-  //     setGroupNmaeUpdatedValue("");
-  //     setIsEdit(false);
-  //   };
-  // }, [chatID]);
 
   const IconBtns = (
     <>
@@ -267,10 +249,12 @@ const Groups = () => {
             xs: "none",
             sm: "block",
           },
+          borderRight: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
         }}
-        bgcolor={"bisque"}
       >
-        <GroupList myGroups={myGroups?.data?.groups} chatID={chatID} />
+        <GroupList myGroups={myGroups?.data?.groups || []} chatID={chatID} />
       </Grid>
       <Grid
         item
@@ -309,11 +293,10 @@ const Groups = () => {
                 md: "1rem 4rem",
               }}
             >
-              {/* */}
               {isLoadingRemoveGroupMember ? (
                 <CircularProgress />
               ) : (
-                members.map((user) => (
+                (members || []).map((user) => (
                   <USerItem
                     key={user._id}
                     user={user}
@@ -360,16 +343,17 @@ const Groups = () => {
       >
         <GroupList
           w={"50vw"}
-          myGroups={myGroups?.data?.groups}
+          myGroups={myGroups?.data?.groups || []}
           chatID={chatID}
         />
       </Drawer>
     </Grid>
   );
 };
+
 const GroupList = ({ w = "100%", myGroups = [], chatID }) => (
-  <Stack w={w}>
-    {myGroups.length > 0 ? (
+  <Stack width={w}>
+    {(myGroups || []).length > 0 ? (
       myGroups.map((i) => (
         <GroupListItem key={i._id} group={i} chatID={chatID} />
       ))
@@ -380,6 +364,7 @@ const GroupList = ({ w = "100%", myGroups = [], chatID }) => (
     )}
   </Stack>
 );
+
 const GroupListItem = ({ group, chatID }) => {
   const { name, avatar, _id } = group;
 

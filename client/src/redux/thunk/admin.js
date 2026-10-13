@@ -15,34 +15,39 @@ const adminLogin = createAsyncThunk("/admin/login", async (secretKey) => {
       { secretKey },
       config,
     );
+    if (data?.token) {
+      localStorage.setItem("admin-token", data.token);
+    }
     return data.message;
   } catch (error) {
-    throw error.response.data.message;
+    throw error?.response?.data?.message || error?.message || "Something went wrong";
   }
 });
+
 const getAdmin = createAsyncThunk("/admin/getAdmin", async () => {
   try {
-    
     const { data } = await axios.get(
       `${server}/api/v1/admin/`,
-      {withCredentials:true}
+      { withCredentials: true }
     );
     return data.admin;
   } catch (error) {
-    throw error.response.data.message;
+    throw error?.response?.data?.message || error?.message || "Something went wrong";
   }
 });
+
 const adminLogout = createAsyncThunk("/admin/logout", async () => {
   try {
-    
     const { data } = await axios.get(
       `${server}/api/v1/admin/logout`,
-      {withCredentials:true}
+      { withCredentials: true }
     );
-    // console.log(data);
+    localStorage.removeItem("admin-token");
     return data.message;
   } catch (error) {
-    throw error.response.data.message;
+    localStorage.removeItem("admin-token");
+    throw error?.response?.data?.message || error?.message || "Something went wrong";
   }
 });
-export { adminLogin ,getAdmin,adminLogout};
+
+export { adminLogin, getAdmin, adminLogout };

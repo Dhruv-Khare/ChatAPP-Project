@@ -23,6 +23,7 @@ const adminLogin = TryCatch(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    token,
     message: "Authenticated Successfully, Welcome BOSS!",
   });
 });
@@ -40,11 +41,10 @@ const adminLogout = TryCatch(async (req, res, next) => {
     });
 });
 
-const getAdminData=TryCatch(async(req,res,next)=>{
-    res.status(200).json({
-        admin:true,
-    });
-
+const getAdminData = TryCatch(async (req, res, next) => {
+  res.status(200).json({
+    admin: true,
+  });
 });
 
 const allUsers = TryCatch(async (req, res, next) => {
@@ -116,8 +116,9 @@ const allMessages = TryCatch(async (req, res) => {
     .populate("sender", "name avatar")
     .populate("chat", "groupChat");
 
-  const transformedMessages = messages.filter(({ sender, chat }) => sender && chat).map(
-    ({ content, attachements, _id, sender, createdAt, chat }) => {
+  const transformedMessages = messages
+    .filter(({ sender, chat }) => sender && chat)
+    .map(({ content, attachements, _id, sender, createdAt, chat }) => {
       return {
         _id,
         content,
@@ -131,8 +132,7 @@ const allMessages = TryCatch(async (req, res) => {
         groupChat: chat.groupChat,
         createdAt,
       };
-    }
-  );
+    });
 
   res.status(200).json({
     success: true,
@@ -179,4 +179,12 @@ const getDashBoardStats = TryCatch(async (req, res) => {
   });
 });
 
-export {getAdminData,adminLogout, adminLogin, allUsers, allChats, allMessages, getDashBoardStats };
+export {
+  getAdminData,
+  adminLogout,
+  adminLogin,
+  allUsers,
+  allChats,
+  allMessages,
+  getDashBoardStats,
+};

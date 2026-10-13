@@ -6,8 +6,15 @@ const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: `${server}/api/v1/`,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("patrachar-token");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
-  tagTypes: ["Chats", "User","Message","Admin"],
+  tagTypes: ["Chats", "User", "Message", "Admin"],
 
   endpoints: (builder) => ({
     myChats: builder.query({
@@ -57,45 +64,44 @@ const api = createApi({
       invalidatesTags: ["Chats"],
     }),
     getChatDetails: builder.query({
-      query: ({chatId,populate=false}) => {
-        let url=`chat/${chatId}`;
-        if(populate) url+="?populate=true";
+      query: ({ chatId, populate = false }) => {
+        let url = `chat/${chatId}`;
+        if (populate) url += "?populate=true";
 
         return {
           url,
-          credentials:"include"
-        }
+          credentials: "include",
+        };
       },
       providesTags: ["Chat"],
     }),
-    updateGroupName:builder.mutation({
-      query:({chatId,name})=>({
-        url:`chat/${chatId}`,
-        method:"PUT",
-        credentials:"include",
-        body:{name},
+    updateGroupName: builder.mutation({
+      query: ({ chatId, name }) => ({
+        url: `chat/${chatId}`,
+        method: "PUT",
+        credentials: "include",
+        body: { name },
       }),
-      invalidatesTags:["Chat"],
+      invalidatesTags: ["Chat"],
     }),
     availableFriends: builder.query({
       query: (chatId) => {
-        let url=`user/friends`;
-        if(chatId) url+=`?chatId=${chatId}`;
+        let url = `user/friends`;
+        if (chatId) url += `?chatId=${chatId}`;
 
         return {
           url,
-          credentials:"include"
-        }
+          credentials: "include",
+        };
       },
       providesTags: ["User"],
     }),
     getMyMessages: builder.query({
-      query: ({chatId,page}) =>({
-          url:`chat/message/${chatId}?page=${page}`,
-          credentials:"include"
-        }),
-      // providesTags: ["Message"],
-      keepUnusedDataFor:0,
+      query: ({ chatId, page }) => ({
+        url: `chat/message/${chatId}?page=${page}`,
+        credentials: "include",
+      }),
+      keepUnusedDataFor: 0,
     }),
     sendAttatchement: builder.mutation({
       query: (data) => ({
@@ -106,58 +112,55 @@ const api = createApi({
       }),
     }),
     newGroup: builder.mutation({
-      query: ({name,members}) => ({
+      query: ({ name, members }) => ({
         url: "chat/new",
         method: "POST",
         credentials: "include",
-        body: {name,members},
+        body: { name, members },
       }),
-      providesTags:["Chat"]
+      providesTags: ["Chat"],
     }),
     removeGroupMember: builder.mutation({
-      query: ({chatId,userId}) => ({
+      query: ({ chatId, userId }) => ({
         url: "chat/removeMembers",
         method: "PUT",
         credentials: "include",
-        body: {chatId,userId},
+        body: { chatId, userId },
       }),
-      providesTags:["Chat"]
+      providesTags: ["Chat"],
     }),
     addGroupMember: builder.mutation({
-      query: ({chatId,members}) => ({
+      query: ({ chatId, members }) => ({
         url: "chat/addMembers",
         method: "PUT",
         credentials: "include",
-        body: {chatId,members},
+        body: { chatId, members },
       }),
-      providesTags:["Chat"]
+      providesTags: ["Chat"],
     }),
     deleteChat: builder.mutation({
       query: (chatId) => ({
         url: `chat/${chatId}`,
         method: "DELETE",
         credentials: "include",
-        
       }),
-      invalidatesTags:["Chat"]
+      invalidatesTags: ["Chat"],
     }),
     leaveGroup: builder.mutation({
       query: (chatId) => ({
         url: `chat/leave/${chatId}`,
         method: "DELETE",
         credentials: "include",
-        
       }),
-      invalidatesTags:["Chat"]
+      invalidatesTags: ["Chat"],
     }),
     getAdminDashboardStats: builder.mutation({
       query: () => ({
         url: `admin/stats`,
         method: "GET",
         credentials: "include",
-        
       }),
-      invalidatesTags:["Admin"]
+      invalidatesTags: ["Admin"],
     }),
   }),
 });
@@ -180,6 +183,5 @@ export const {
   useAddGroupMemberMutation,
   useDeleteChatMutation,
   useLeaveGroupMutation,
-  useGetAdminDashboardStatsMutation
+  useGetAdminDashboardStatsMutation,
 } = api;
-

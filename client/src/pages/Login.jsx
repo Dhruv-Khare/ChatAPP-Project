@@ -43,10 +43,9 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
-    // console.log("login1");
     e.preventDefault();
     setIsLoading(true);
-    const toastId=toast.loading("Logging In...");
+    const toastId = toast.loading("Logging In...");
 
     const config = {
       withCredentials: true,
@@ -64,21 +63,26 @@ const Login = () => {
         },
         config,
       );
-      // console.log("login2");
+
+      if (data?.token) {
+        localStorage.setItem("patrachar-token", data.token);
+      }
 
       dispatch(userExists(data?.user));
-      toast.success(data.message,{id:toastId});
+      toast.success(data.message, { id: toastId });
     } catch (error) {
-      // console.log("login3");
-      toast.error(error?.response?.data.message || "Something went wrong",{id:toastId});
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const toastId=toast.loading("Signing Up...");
+    const toastId = toast.loading("Signing Up...");
     const config = {
       withCredentials: true,
       headers: {
@@ -99,14 +103,21 @@ const Login = () => {
         config,
       );
 
+      if (data?.token) {
+        localStorage.setItem("patrachar-token", data.token);
+      }
+
       dispatch(userExists(data?.user));
-      toast.success(data.message,{id:toastId});
+      toast.success(data.message, { id: toastId });
     } catch (error) {
-      toast.error(error?.response?.data.message || "Something went wrong",{id:toastId});
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <Box
       sx={{
@@ -223,8 +234,6 @@ const Login = () => {
                   Or
                 </Typography>
                 <Button
-                  // sx={{ marginTop: "1rem" }}
-                  // variant="contained"
                   color="primary"
                   type="submit"
                   fullWidth
@@ -350,8 +359,6 @@ const Login = () => {
                   Or
                 </Typography>
                 <Button
-                  // sx={{ marginTop: "1rem" }}
-                  // variant="contained"
                   color="primary"
                   type="submit"
                   fullWidth
