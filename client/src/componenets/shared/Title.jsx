@@ -1,0 +1,15 @@
+import { Helmet } from "react-helmet-async";
+
+const Title = ({
+  title = "Patrachar",
+  description = "this is a chat app called Patrachar",
+}) => {
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+    </Helmet>
+  );
+};
+
+export default Title;
