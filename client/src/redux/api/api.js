@@ -14,7 +14,7 @@ const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Chats", "User", "Message", "Admin"],
+  tagTypes: ["Chats", "User", "Message", "Admin", "Pinned"],
 
   endpoints: (builder) => ({
     myChats: builder.query({
@@ -103,6 +103,21 @@ const api = createApi({
       }),
       keepUnusedDataFor: 0,
     }),
+    getPinnedMessages: builder.query({
+      query: (chatId) => ({
+        url: `chat/message/${chatId}/pinned`,
+        credentials: "include",
+      }),
+      providesTags: ["Pinned"],
+    }),
+    togglePinMessage: builder.mutation({
+      query: (messageId) => ({
+        url: `chat/message/${messageId}/pin`,
+        method: "PUT",
+        credentials: "include",
+      }),
+      invalidatesTags: ["Pinned"],
+    }),
     sendAttatchement: builder.mutation({
       query: (data) => ({
         url: "chat/message",
@@ -174,6 +189,8 @@ export const {
   useAcceptFriendReqMutation,
   useGetChatDetailsQuery,
   useGetMyMessagesQuery,
+  useGetPinnedMessagesQuery,
+  useTogglePinMessageMutation,
   useSendAttatchementMutation,
   useGetMyGroupsQuery,
   useAvailableFriendsQuery,

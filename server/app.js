@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
-import { v4 as uuid } from "uuid";
+import mongoose from "mongoose";
 import cors from "cors";
 
 import userRoutes from "./routes/user.js";
@@ -79,9 +79,10 @@ io.on("connection", (socket) => {
   userSocketIDs.set(user._id.toString(), socket.id);
   // console.log(userSocketIDs);
   socket.on(NEW_MESSAGE, async ({ chatId, message, members }) => {
+    const messageId = new mongoose.Types.ObjectId();
     const messageForRealTime = {
       content: message,
-      _id: uuid(),
+      _id: messageId,
       sender: {
         _id: user._id,
         name: user.name,
@@ -90,6 +91,7 @@ io.on("connection", (socket) => {
       createdAt: new Date().toISOString(),
     };
     const messageForDB = {
+      _id: messageId,
       content: message,
       sender: user._id,
       chat: chatId,
