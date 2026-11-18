@@ -1,10 +1,15 @@
-import { Box, IconButton, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, IconButton, InputBase, Skeleton, Stack, Typography } from "@mui/material";
 import Applayout from "../componenets/layout/Applayout.jsx";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   AttachFile as AttachFileIcon,
   ChatBubbleOutline as ChatBubbleOutlineIcon,
+  Close as CloseIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
   Lock as LockIcon,
+  PushPin as PushPinIcon,
+  Search as SearchIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
 import { InputBox } from "../componenets/styled/StyledComponent.jsx";
@@ -15,6 +20,7 @@ import {
   ALERT,
   CHAT_JOINED,
   CHAT_LEAVED,
+  MESSAGE_PIN_UPDATED,
   NEW_MESSAGE,
   START_TYPING,
   STOP_TYPING,
@@ -22,6 +28,8 @@ import {
 import {
   useGetChatDetailsQuery,
   useGetMyMessagesQuery,
+  useGetPinnedMessagesQuery,
+  useTogglePinMessageMutation,
 } from "../redux/api/api.js";
 import { useErrors, useSocketEvents } from "../hooks/hook.jsx";
 import { useInfiniteScrollTop } from "6pp";
@@ -31,6 +39,7 @@ import { removeNewMessageAlert } from "../redux/reducer/chat.js";
 import { TypingLoader } from "../componenets/layout/Loaders.jsx";
 import { useNavigate } from "react-router-dom";
 import AvatarCard from "../componenets/shared/AvatarCard.jsx";
+import toast from "react-hot-toast";
 
 const Chat = ({ chatId, user, selectedChat }) => {
   const containerRef = useRef(null);
@@ -48,6 +57,17 @@ const Chat = ({ chatId, user, selectedChat }) => {
   const [iAmTyping, setIAmTyping] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
   const typingTimeOut = useRef(null);
+
+  // pin + search
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [matchOffset, setMatchOffset] = useState(0); // 0 = newest match
+  const [jumpId, setJumpId] = useState(null);
+  const [flashId, setFlashId] = useState(null);
+  const [pinCursor, setPinCursor] = useState(0);
+  const pinnedQuery = useGetPinnedMessagesQuery(chatId, { skip: !chatId });
+  const refetchPinned = pinnedQuery.refetch;
+  const [togglePin] = useTogglePinMessageMutation();
 
   const chatDetails = useGetChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMyMessagesQuery({ chatId, page });
@@ -159,7 +179,16 @@ const Chat = ({ chatId, user, selectedChat }) => {
     [chatId],
   );
 
+  const pinUpdatedListener = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      refetchPinned();
+    },
+    [chatId, refetchPinned],
+  );
+
   const eventArr = {
+    [MESSAGE_PIN_UPDATED]: pinUpdatedListener,
     [ALERT]: newAlertListener,
     [NEW_MESSAGE]: newMessagesHandler,
     [START_TYPING]: startTypingListener,
@@ -171,6 +200,97 @@ const Chat = ({ chatId, user, selectedChat }) => {
   useErrors(errors);
 
   const allMessages = [...(oldMessages || []), ...(messages || [])];
+
+  // ---------- pinned messages ----------
+  const pinnedMessages = pinnedQuery?.data?.messages || [];
+  const pinnedIds = new Set(pinnedMessages.map((m) => m._id));
+  const pinnedShown = pinnedMessages.length
+    ? pinnedMessages[pinnedMessages.length - 1 - (pinCursor % pinnedMessages.length)]
+    : null;
+
+  const togglePinHandler = useCallback(
+    async (messageId) => {
+      const res = await togglePin(messageId);
+      if (res.error) toast.error(res.error?.data?.message || "Something went wrong");
+      else toast.success(res.data?.message || "Done");
+    },
+    [togglePin],
+  );
+
+  // ---------- search ----------
+  const searchQ = searchText.trim().toLowerCase();
+  const matchIds =
+    searchOpen && searchQ
+      ? allMessages
+          .filter((m) => m.content?.toLowerCase().includes(searchQ))
+          .map((m) => m._id)
+      : [];
+  const safeOffset = matchIds.length ? Math.min(matchOffset, matchIds.length - 1) : 0;
+  const activeMatchId = matchIds.length ? matchIds[matchIds.length - 1 - safeOffset] : null;
+
+  const scrollToMessage = useCallback((id) => {
+    const el = document.getElementById(`msg-${id}`);
+    if (!el) return false;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    return true;
+  }, []);
+
+  const jumpToMessage = (id) => {
+    setFlashId(id);
+    setTimeout(() => setFlashId(null), 1800);
+    if (scrollToMessage(id)) return;
+    // not loaded yet -> load older pages until it shows up
+    setJumpId(id);
+  };
+
+  const pinnedBarClickHandler = () => {
+    if (!pinnedShown) return;
+    jumpToMessage(pinnedShown._id);
+    setPinCursor((c) => c + 1);
+  };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchText("");
+    setMatchOffset(0);
+  };
+  const olderMatch = () => setMatchOffset((o) => Math.min(o + 1, matchIds.length - 1));
+  const newerMatch = () => setMatchOffset((o) => Math.max(o - 1, 0));
+  const searchKeyHandler = (e) => {
+    if (e.key === "Enter") (e.shiftKey ? newerMatch : olderMatch)();
+    if (e.key === "Escape") closeSearch();
+  };
+
+  // reset when switching chat
+  useEffect(() => {
+    setJumpId(null);
+    setFlashId(null);
+    setPinCursor(0);
+    setSearchOpen(false);
+    setSearchText("");
+    setMatchOffset(0);
+  }, [chatId]);
+
+  // keep loading older pages while a pinned jump / search needs them
+  useEffect(() => {
+    if (jumpId && scrollToMessage(jumpId)) {
+      setJumpId(null);
+      return;
+    }
+    const needsMore = jumpId || (searchOpen && searchQ);
+    if (needsMore && !oldMessagesChunk.isFetching && page < totalPage) {
+      setPage((p) => p + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jumpId, searchOpen, searchQ, page, totalPage, allMessages.length, oldMessagesChunk.isFetching]);
+
+  // scroll to the active search match
+  useEffect(() => {
+    if (activeMatchId) scrollToMessage(activeMatchId);
+  }, [activeMatchId, scrollToMessage]);
+
+  const barsHeightRem = (pinnedShown ? 2.75 : 0) + (searchOpen ? 3.25 : 0);
+
   const conversationTitle = selectedChat?.groupChat
     ? chatDetails?.data?.chat?.name
     : selectedChat?.name || chatDetails?.data?.chat?.name || "Conversation";
@@ -208,27 +328,109 @@ const Chat = ({ chatId, user, selectedChat }) => {
             </Stack>
           </Stack>
         </Stack>
-        <Box
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <IconButton onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}>
+            <SearchIcon />
+          </IconButton>
+          <Box
+            sx={{
+              display: { xs: "none", sm: "block" },
+              px: 1.25,
+              py: 0.5,
+              borderRadius: 99,
+              bgcolor: "action.selected",
+              color: "primary.main",
+              fontSize: 12,
+              fontWeight: 900,
+            }}
+          >
+            Secure
+          </Box>
+        </Stack>
+      </Box>
+
+      {/* search bar (below header) */}
+      {searchOpen && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
           sx={{
-            display: { xs: "none", sm: "block" },
-            px: 1.25,
-            py: 0.5,
-            borderRadius: 99,
-            bgcolor: "action.selected",
-            color: "primary.main",
-            fontSize: 12,
-            fontWeight: 900,
+            height: "3.25rem",
+            boxSizing: "border-box",
+            px: { xs: 1.5, sm: 2.5 },
+            bgcolor: "background.paper",
+            borderBottom: "1px solid",
+            borderColor: "divider",
           }}
         >
-          Secure
-        </Box>
-      </Box>
+          <SearchIcon sx={{ color: "text.secondary" }} />
+          <InputBase
+            autoFocus
+            fullWidth
+            placeholder="Search in conversation"
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setMatchOffset(0);
+            }}
+            onKeyDown={searchKeyHandler}
+          />
+          {searchQ && (
+            <Typography variant="caption" color="text.secondary" fontWeight={700} noWrap>
+              {matchIds.length ? `${matchIds.length - safeOffset} of ${matchIds.length}` : "No results"}
+            </Typography>
+          )}
+          <IconButton size="small" disabled={safeOffset >= matchIds.length - 1} onClick={olderMatch}>
+            <KeyboardArrowUpIcon />
+          </IconButton>
+          <IconButton size="small" disabled={safeOffset === 0} onClick={newerMatch}>
+            <KeyboardArrowDownIcon />
+          </IconButton>
+          <IconButton size="small" onClick={closeSearch}>
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+      )}
+
+      {/* pinned message bar (below header) */}
+      {pinnedShown && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1.25}
+          onClick={pinnedBarClickHandler}
+          sx={{
+            height: "2.75rem",
+            boxSizing: "border-box",
+            px: { xs: 2, sm: 2.5 },
+            cursor: "pointer",
+            bgcolor: "background.paper",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            "&:hover": { bgcolor: "action.hover" },
+          }}
+        >
+          <PushPinIcon sx={{ fontSize: 18, color: "primary.main" }} />
+          <Stack minWidth={0} flexGrow={1}>
+            <Typography variant="caption" color="primary.main" fontWeight={800} lineHeight={1.2}>
+              Pinned message
+              {pinnedMessages.length > 1
+                ? ` ${pinnedMessages.length - (pinCursor % pinnedMessages.length)} of ${pinnedMessages.length}`
+                : ""}
+            </Typography>
+            <Typography variant="body2" noWrap lineHeight={1.3}>
+              {pinnedShown.content || "Attachment"}
+            </Typography>
+          </Stack>
+        </Stack>
+      )}
       <Stack
         ref={containerRef}
         boxSizing={"border-box"}
         padding={"1rem"}
         spacing={"1rem"}
-        height={"calc(90% - 4.5rem)"}
+        height={`calc(90% - ${4.5 + barsHeightRem}rem)`}
         sx={{
           overflowX: "hidden",
           overflowY: "auto",
@@ -240,7 +442,15 @@ const Chat = ({ chatId, user, selectedChat }) => {
       >
         {allMessages.length > 0 ? (
           allMessages.map((i) => (
-            <MessageComponent key={i._id} message={i} user={user} />
+            <MessageComponent
+              key={i._id}
+              message={i}
+              user={user}
+              isPinned={pinnedIds.has(i._id)}
+              onTogglePin={togglePinHandler}
+              searchQuery={searchOpen ? searchText : ""}
+              isActive={i._id === activeMatchId || i._id === flashId}
+            />
           ))
         ) : (
           <Stack

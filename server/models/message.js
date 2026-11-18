@@ -25,6 +25,19 @@ const schema = new Schema(
       ref: "Chat",
       required: true,
     },
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
+    pinnedBy: {
+      type: Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    pinnedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

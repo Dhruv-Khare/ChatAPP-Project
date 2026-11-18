@@ -1,5 +1,6 @@
 import {
   ALERT,
+  MESSAGE_PIN_UPDATED,
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   REFETCH_CHATS,
@@ -278,7 +279,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
   const message = await Message.create(messageForDb);
 
   emmitEvent(req, NEW_MESSAGE, chat.members, {
-    message: messageForRealTime,
+    message: { ...messageForRealTime, _id: message._id },
     chatId,
   });
   emmitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
@@ -428,9 +429,54 @@ const getMessages = TryCatch(async (req, res, next) => {
   });
 });
 
+const togglePinMessage = TryCatch(async (req, res, next) => {
+  const msgDoc = await Message.findById(req.params.id);
+  if (!msgDoc) return next(new ErrorHandler("Message Not Found", 404));
+
+  const chat = await Chat.findById(msgDoc.chat);
+  if (!chat) return next(new ErrorHandler("Chat Not Found", 404));
+
+  if (!chat.members.some((member) => member.toString() === req.user.toString()))
+    return next(new ErrorHandler("You are not allowed to access this chat", 403));
+
+  msgDoc.isPinned = !msgDoc.isPinned;
+  msgDoc.pinnedBy = msgDoc.isPinned ? req.user : null;
+  msgDoc.pinnedAt = msgDoc.isPinned ? new Date() : null;
+  await msgDoc.save();
+
+  emmitEvent(req, MESSAGE_PIN_UPDATED, chat.members, {
+    chatId: chat._id.toString(),
+    messageId: msgDoc._id.toString(),
+    isPinned: msgDoc.isPinned,
+  });
+
+  return res.status(200).json({
+    success: true,
+    isPinned: msgDoc.isPinned,
+    message: msgDoc.isPinned ? "Message pinned" : "Message unpinned",
+  });
+});
+
+const getPinnedMessages = TryCatch(async (req, res, next) => {
+  const chatId = req.params.id;
+  const chat = await Chat.findById(chatId);
+  if (!chat) return next(new ErrorHandler("Chat Not Found", 404));
+
+  if (!chat.members.some((member) => member.toString() === req.user.toString()))
+    return next(new ErrorHandler("You are not allowed to access this chat", 403));
+
+  const messages = await Message.find({ chat: chatId, isPinned: true })
+    .sort({ pinnedAt: 1 })
+    .populate("sender", "name avatar")
+    .lean();
+
+  return res.status(200).json({ success: true, messages });
+});
+
 export {
   addMember, changeGroupName,
   deleteChat, getChatDetails, getMessages, getMyChats,
-  getMyGroups, leaveGroup, newGroupChat, removeMembers, sendMessage
+  getMyGroups, getPinnedMessages, leaveGroup, newGroupChat, removeMembers, sendMessage,
+  togglePinMessage
 };
 
